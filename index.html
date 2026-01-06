@@ -6,1605 +6,1341 @@
   <title>DAK Edzői nyilvántartás</title>
   <style>
     :root{
-      --bg:#0b1020;
-      --bg2:#0e1630;
-      --card:#101a3a;
-      --card2:#0f1a3f;
-      --muted:#94a3b8;
-      --text:#e5e7eb;
-      --line:#22305a;
-      --accent:#7c3aed;
-      --accent2:#22c55e;
-      --danger:#ef4444;
-      --warn:#f59e0b;
-      --shadow: 0 12px 40px rgba(0,0,0,.35);
-      --radius:18px;
-      --radius2:24px;
+      --bg:#0b1220;
+      --card:#111a2e;
+      --card2:#0f1730;
+      --text:#e8eefc;
+      --muted:#9db0d3;
+      --line:#223055;
+      --accent:#7c5cff;
+      --accent2:#18d6a1;
+      --warn:#ffcc66;
+      --danger:#ff5c7a;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --radius2:22px;
+      --pad:14px;
+      --chip:#1b2750;
+      --chip2:#162246;
+      --chipText:#d9e4ff;
+      --btn:#1a2548;
+      --btn2:#162244;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      background: radial-gradient(1200px 700px at 20% 10%, #1b2a6b33, transparent 60%),
-                  radial-gradient(900px 600px at 80% 20%, #7c3aed22, transparent 60%),
-                  radial-gradient(900px 600px at 60% 90%, #22c55e1d, transparent 60%),
-                  linear-gradient(180deg, var(--bg), #070a16);
-      color: var(--text);
+      background: radial-gradient(1200px 800px at 10% 0%, rgba(124,92,255,.25), transparent 55%),
+                  radial-gradient(1100px 800px at 90% 10%, rgba(24,214,161,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
     a{color:inherit}
-    .wrap{
-      max-width: 1400px;
-      margin: 22px auto 40px;
-      padding: 0 16px;
-    }
-    header{
-      display:flex;
-      gap:14px;
-      align-items:flex-start;
-      justify-content:space-between;
-      margin-bottom: 16px;
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .topbar{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:12px;
     }
     .brand{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .logo{
-      width:44px;height:44px;border-radius:14px;
-      background: linear-gradient(135deg, #7c3aed, #22c55e);
+      display:flex; gap:10px; align-items:center;
+      padding:12px 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius2);
       box-shadow: var(--shadow);
-      position:relative;
-      overflow:hidden;
+      min-width:280px;
     }
-    .logo:after{
-      content:"";
-      position:absolute; inset:-20px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%);
-      transform: rotate(15deg);
+    .dot{
+      width:12px;height:12px;border-radius:999px;
+      background: linear-gradient(180deg,var(--accent), var(--accent2));
+      box-shadow: 0 0 0 4px rgba(124,92,255,.15);
+      flex:0 0 auto;
+      margin-top:3px;
     }
-    .title{
-      display:flex; flex-direction:column;
-      gap:2px;
-    }
-    .title h1{
-      margin:0;
-      font-size: 18px;
-      letter-spacing:.2px;
-    }
-    .title .sub{
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .topRight{
-      display:flex;
+    .brand h1{margin:0;font-size:16px}
+    .brand .sub{color:var(--muted);font-size:12px;margin-top:2px}
+    .controls{
+      flex:1;
+      display:flex; gap:10px; align-items:stretch; justify-content:flex-end;
       flex-wrap:wrap;
-      gap:10px;
-      justify-content:flex-end;
-      align-items:center;
     }
-    .pill{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.08);
-      box-shadow: 0 10px 26px rgba(0,0,0,.22);
-      backdrop-filter: blur(8px);
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      padding:12px;
+      min-width: 320px;
     }
-    .pill b{font-weight:700}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .row + .row{margin-top:10px}
     .btn{
+      appearance:none;border:1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      color:var(--text);
+      padding:9px 12px;border-radius:14px;
       cursor:pointer;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-weight: 650;
-      letter-spacing:.2px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      transition: transform .06s ease, background .15s ease, border-color .15s ease;
+      display:inline-flex; gap:8px; align-items:center;
+      transition: transform .05s ease, border-color .15s ease, opacity .15s ease;
       user-select:none;
+      white-space:nowrap;
     }
-    .btn:hover{background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.16)}
+    .btn:hover{border-color: rgba(124,92,255,.45)}
     .btn:active{transform: translateY(1px)}
+    .btn:disabled{opacity:.55; cursor:not-allowed}
     .btn.primary{
-      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(34,197,94,.85));
-      border-color: rgba(255,255,255,.12);
-      box-shadow: 0 16px 34px rgba(124,58,237,.22);
+      border-color: rgba(124,92,255,.55);
+      background: linear-gradient(180deg, rgba(124,92,255,.30), rgba(124,92,255,.12));
+    }
+    .btn.ghost{
+      background: transparent;
     }
     .btn.danger{
-      background: rgba(239,68,68,.14);
-      border-color: rgba(239,68,68,.35);
+      border-color: rgba(255,92,122,.45);
+      background: linear-gradient(180deg, rgba(255,92,122,.22), rgba(255,92,122,.08));
     }
-    .btn.small{padding:8px 10px;border-radius:10px;font-size:12px}
-    .btn[disabled]{opacity:.55; cursor:not-allowed}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 360px;
-      gap: 16px;
+    .input{
+      flex:1;
+      background: rgba(10,15,30,.55);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      padding:9px 12px;border-radius:14px;
+      outline:none;
+      min-width: 220px;
     }
-    @media (max-width: 1100px){
-      .grid{grid-template-columns: 1fr}
+    .input::placeholder{color: rgba(157,176,211,.7)}
+    .weekbox{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      color:var(--muted);
+      font-size:12px;
     }
-    .card{
+    .weekbox b{color:var(--text);font-size:13px}
+    .badge{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(124,92,255,.12);
+      color: var(--text);
+    }
+
+    /* Summary cards (2-es funkció) */
+    .summaryWrap{
+      margin-top:12px;
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border: 1px solid rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      padding:12px;
+    }
+    .summaryHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .summaryTitle{font-weight:800}
+    .summarySub{color:var(--muted); font-size:12px}
+    .summaryGrid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:10px;
+    }
+    @media (max-width: 980px){
+      .summaryGrid{grid-template-columns:1fr}
+    }
+    .sumCard{
+      background: rgba(10,15,30,.35);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding:12px;
+    }
+    .sumName{
+      font-weight:800;
+      margin-bottom:8px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .sumTag{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(24,214,161,.10);
+      color: var(--text);
+      white-space:nowrap;
+    }
+    .sumMetrics{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:8px;
+    }
+    @media (max-width: 980px){
+      .sumMetrics{grid-template-columns: 1fr 1fr 1fr}
+    }
+    @media (max-width: 560px){
+      .sumMetrics{grid-template-columns: 1fr}
+    }
+    .metric{
+      background: rgba(17,26,46,.35);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
+      padding:10px;
+    }
+    .metric .k{color:var(--muted); font-size:11px}
+    .metric .v{font-weight:900; font-size:16px; margin-top:3px}
+    .metric .s{color:var(--muted); font-size:11px; margin-top:2px}
+
+    /* Table */
+    .tableWrap{
+      margin-top:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.06);
       border-radius: var(--radius2);
       box-shadow: var(--shadow);
       overflow:hidden;
-    }
-    .cardHeader{
-      padding: 14px 14px 10px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 10px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.12);
-    }
-    .cardHeader h2{
-      margin:0;
-      font-size: 14px;
-      letter-spacing:.25px;
-      color: #f3f4f6;
-    }
-    .cardHeader .muted{color: var(--muted); font-size:12px}
-    .cardBody{padding: 12px 14px 14px}
-    .banner{
-      margin: 0 0 12px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(245,158,11,.35);
-      background: rgba(245,158,11,.10);
-      color: #fde68a;
-      display:none;
-      gap: 10px;
-      align-items:flex-start;
-    }
-    .banner.show{display:flex}
-    .banner .dot{
-      width:10px;height:10px;border-radius:50%;
-      margin-top:4px;
-      background: var(--warn);
-      box-shadow: 0 0 0 6px rgba(245,158,11,.15);
-      flex: 0 0 auto;
-    }
-    .tableWrap{
-      overflow:auto;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(0,0,0,.10);
     }
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width: 900px;
+      min-width:980px;
     }
-    th, td{
-      padding: 10px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      border-right: 1px solid rgba(255,255,255,.06);
-      vertical-align:top;
-      position:relative;
-    }
-    th:last-child, td:last-child{border-right:none}
-    tr:last-child td{border-bottom:none}
     thead th{
       position:sticky; top:0;
-      background: rgba(12,18,40,.92);
-      backdrop-filter: blur(10px);
+      background: rgba(17,26,46,.92);
+      backdrop-filter: blur(8px);
       z-index:2;
-      font-size: 12px;
-      color:#cbd5e1;
-      text-transform:uppercase;
-      letter-spacing:.08em;
     }
-    tbody th.time{
-      position:sticky; left:0;
-      background: rgba(12,18,40,.92);
-      backdrop-filter: blur(10px);
-      z-index:1;
-      width: 120px;
-      font-size: 12px;
-      color:#cbd5e1;
-      text-transform:uppercase;
-      letter-spacing:.08em;
+    th, td{
+      border-bottom:1px solid rgba(255,255,255,.06);
+      border-right:1px solid rgba(255,255,255,.06);
+      padding:10px;
+      vertical-align:top;
     }
-    .cell{
-      min-height: 64px;
-      border-radius: 14px;
-      padding: 8px 8px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.06);
+    th:first-child, td:first-child{border-left:1px solid rgba(255,255,255,.06)}
+    thead tr:first-child th{border-top:1px solid rgba(255,255,255,.06)}
+    thead .coach{
+      text-align:center;
+      font-weight:700;
+      color:var(--text);
+      padding:12px 10px;
+    }
+    thead .slot{
+      text-align:center;
+      font-weight:600;
+      color:var(--muted);
+      font-size:12px;
+      padding:8px 10px;
+    }
+    .dayCell{
+      width: 160px;
+      background: rgba(10,15,30,.35);
+    }
+    .dayName{
+      font-weight:700;
+      margin:0 0 4px 0;
+      font-size:13px;
+    }
+    .dateText{color:var(--muted); font-size:12px}
+    td{
+      background: rgba(15,23,48,.40);
+    }
+    td.cell{
+      min-height:74px;
       cursor:pointer;
-      transition: transform .06s ease, background .15s ease, border-color .15s ease;
     }
-    .cell:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12)}
-    .cell:active{transform: translateY(1px)}
-    .cell.readonly{cursor:default}
-    .cell.readonly:hover{background: rgba(255,255,255,.03); border-color: rgba(255,255,255,.06)}
-    .kids{
-      display:flex;
-      flex-wrap:wrap;
-      gap:6px;
+    td.cell:hover{
+      background: rgba(124,92,255,.08);
     }
-    .tag{
-      padding: 5px 8px;
-      border-radius: 999px;
-      background: rgba(124,58,237,.16);
-      border: 1px solid rgba(124,58,237,.30);
-      color: #e9d5ff;
-      font-size: 12px;
-      line-height: 1;
+    td.cell.conflict{
+      box-shadow: inset 0 0 0 2px rgba(255,204,102,.35);
+    }
+    .chips{display:flex; flex-wrap:wrap; gap:6px}
+    .chip{
+      background: rgba(27,39,80,.75);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--chipText);
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:12px;
+      display:inline-flex; gap:6px; align-items:center;
       max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
-    .tag.alt{
-      background: rgba(34,197,94,.14);
-      border-color: rgba(34,197,94,.26);
-      color: #d1fae5;
+    .chip.warn{
+      border-color: rgba(255,204,102,.55);
+      box-shadow: 0 0 0 3px rgba(255,204,102,.10);
     }
-    .tag.empty{
-      background: rgba(148,163,184,.08);
-      border-color: rgba(148,163,184,.20);
-      color: #cbd5e1;
-      font-style: italic;
-    }
-    .conflict .cell{
-      border-color: rgba(239,68,68,.55) !important;
-      background: rgba(239,68,68,.08) !important;
-      box-shadow: 0 0 0 4px rgba(239,68,68,.08) inset;
-    }
-    .confBadge{
-      display:none;
-      position:absolute;
-      right: 10px;
-      top: 10px;
-      font-size: 11px;
-      padding: 4px 7px;
-      border-radius: 999px;
-      background: rgba(239,68,68,.14);
-      border: 1px solid rgba(239,68,68,.35);
-      color: #fecaca;
-    }
-    td.conflict .confBadge{display:inline-flex}
-    .sideRow{
-      display:flex; gap:10px; align-items:center; justify-content:space-between;
-      padding: 10px 0;
-      border-bottom: 1px dashed rgba(255,255,255,.10);
-    }
-    .sideRow:last-child{border-bottom:none}
-    .stat{
-      display:flex; flex-direction:column; gap:3px;
-    }
-    .stat .k{color: var(--muted); font-size:12px}
-    .stat .v{font-weight:800; font-size:16px}
-    .mini{
-      color: var(--muted);
+    .chip .x{
+      display:inline-block;
+      width:16px;height:16px; line-height:14px; text-align:center;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      color: rgba(232,238,252,.9);
       font-size:12px;
-      line-height:1.35;
     }
-    .hr{
-      height:1px; background: rgba(255,255,255,.08);
-      margin: 10px 0;
+    .chip .x:hover{background: rgba(255,92,122,.18)}
+    .cellFooter{
+      margin-top:8px;
+      display:flex; justify-content:space-between; align-items:center;
+      color:var(--muted);
+      font-size:11px;
     }
-    .field{
-      display:flex; flex-direction:column; gap:6px;
-      margin: 10px 0;
+    .plus{
+      width:26px;height:26px;border-radius:12px;
+      border:1px dashed rgba(255,255,255,.16);
+      display:inline-flex; align-items:center; justify-content:center;
+      color: rgba(232,238,252,.9);
+      background: rgba(10,15,30,.35);
+      font-weight:700;
     }
-    .field label{
-      font-size:12px;
-      color: var(--muted);
-    }
-    input[type="text"], textarea{
-      width:100%;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.16);
-      color: var(--text);
-      padding: 10px 12px;
-      outline:none;
-    }
-    textarea{min-height: 160px; resize: vertical; line-height:1.4}
-    .row{
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
+    .cell:hover .plus{border-color: rgba(124,92,255,.55); color: var(--text)}
     .hint{
-      font-size: 12px;
       color: var(--muted);
+      font-size:12px;
+      margin-top:10px;
+      display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;
     }
-    .modalOverlay{
+    .hint kbd{
+      font: 11px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      padding:3px 6px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(10,15,30,.45);
+      color: var(--text);
+    }
+
+    /* Drawer / Modal */
+    .backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.55);
       display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-      z-index: 50;
+      align-items:center; justify-content:center;
+      padding:18px;
+      z-index:50;
     }
-    .modalOverlay.show{display:flex}
+    .backdrop.show{display:flex}
     .modal{
-      width: min(720px, 100%);
+      width:min(680px, 100%);
+      background: linear-gradient(180deg, rgba(17,26,46,.98), rgba(15,23,48,.98));
+      border:1px solid rgba(255,255,255,.08);
       border-radius: 24px;
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .modalHead{
-      padding: 14px 16px;
-      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.14);
+    .modalHeader{
+      padding:14px 16px;
+      display:flex; justify-content:space-between; align-items:flex-start; gap:12px;
+      border-bottom:1px solid rgba(255,255,255,.06);
     }
-    .modalHead h3{margin:0; font-size: 14px}
-    .modalHead .meta{color: var(--muted); font-size:12px; margin-top:4px}
-    .modalBody{padding: 14px 16px}
-    .modalFoot{
-      padding: 14px 16px;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      border-top: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.12);
-      flex-wrap:wrap;
+    .modalHeader h2{margin:0;font-size:15px}
+    .modalHeader .meta{color:var(--muted);font-size:12px;margin-top:3px}
+    .modalBody{padding:14px 16px}
+    .modalFooter{
+      padding:14px 16px;
+      border-top:1px solid rgba(255,255,255,.06);
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
     }
-    .toast{
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 16px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: rgba(0,0,0,.65);
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 18px 40px rgba(0,0,0,.45);
-      color: #e5e7eb;
-      font-weight: 650;
-      display:none;
-      z-index: 60;
-    }
-    .toast.show{display:block}
-    .kbd{
-      font-size: 11px;
-      color: #cbd5e1;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      padding: 2px 6px;
-      border-radius: 8px;
-      margin-left: 6px;
-    }
-    .fileInput{display:none}
-    .summaryTable{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      overflow:hidden;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.12);
-    }
-    .summaryTable th, .summaryTable td{
-      padding: 10px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      border-right: 1px solid rgba(255,255,255,.06);
-      font-size: 13px;
-      vertical-align: top;
-    }
-    .summaryTable th{
-      background: rgba(12,18,40,.75);
-      text-transform:uppercase;
-      letter-spacing:.08em;
-      font-size: 11px;
-      color:#cbd5e1;
-    }
-    .summaryTable tr:last-child td{border-bottom:none}
-    .summaryTable td:last-child, .summaryTable th:last-child{border-right:none}
-    .chips{
+    .listRow{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .small{font-size:12px;color:var(--muted)}
+    .divider{height:1px;background:rgba(255,255,255,.06);margin:12px 0}
+    .suggestions{
       display:flex; flex-wrap:wrap; gap:6px;
+      max-height: 96px;
+      overflow:auto;
+      padding-bottom:2px;
     }
-    .chip{
-      font-size: 12px;
-      padding: 5px 8px;
-      border-radius: 999px;
-      background: rgba(148,163,184,.10);
-      border: 1px solid rgba(148,163,184,.22);
-      color: #e5e7eb;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
+    .pill{
+      cursor:pointer;
+      border-radius:999px;
+      padding:6px 10px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(10,15,30,.35);
+      color: var(--text);
+      font-size:12px;
+    }
+    .pill:hover{border-color: rgba(124,92,255,.55); background: rgba(124,92,255,.10)}
+    .warnline{
+      display:none;
+      color: var(--warn);
+      font-size:12px;
+      margin-top:8px;
+    }
+    .warnline.show{display:block}
+
+    /* Search results */
+    .results{
+      margin-top:10px;
+      border-top:1px solid rgba(255,255,255,.06);
+      padding-top:10px;
+      color: var(--muted);
+      font-size:12px;
+      display:none;
+    }
+    .results.show{display:block}
+    .resItem{
+      padding:6px 0;
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      border-bottom:1px dashed rgba(255,255,255,.06);
+    }
+    .resItem:last-child{border-bottom:none}
+    .tag{
+      font-size:11px;
+      padding:3px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(24,214,161,.10);
+      color: var(--text);
+    }
+
+    /* Print */
+    @media print{
+      body{background:#fff;color:#000}
+      .topbar, .hint, .modal, .backdrop, .summaryWrap{display:none !important}
+      .tableWrap{box-shadow:none; border:none; border-radius:0}
+      thead th{position:static;background:#fff;color:#000}
+      th, td{border:1px solid #ddd !important;background:#fff !important;color:#000 !important}
+      .chip{background:#f3f3f3 !important;color:#000 !important;border:1px solid #ddd !important}
+      .plus, .cellFooter{display:none !important}
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div class="title">
-          <h1>DAK Edzői nyilvántartás</h1>
-          <div class="sub">Edzők fixek · Gyerekek változnak · Heti táblázat + összesítő</div>
-        </div>
-      </div>
-
-      <div class="topRight">
-        <div class="pill" title="Aktuális hét (hétfői kezdéssel)">
-          <span>📅</span>
-          <div><b id="weekLabel">—</b> <span class="muted" id="weekRange"></span></div>
-        </div>
-
-        <button class="btn small" id="prevWeekBtn" title="Előző hét"><span>⬅️</span> Előző</button>
-        <button class="btn small" id="nextWeekBtn" title="Következő hét">Következő <span>➡️</span></button>
-
-        <button class="btn primary" id="summaryBtn" title="2-es funkció: heti összesítő"><span>📊</span> Heti összesítő</button>
-
-        <button class="btn" id="shareBtn" title="Read-only megosztás linkkel"><span>🔗</span> Megosztás</button>
-        <button class="btn" id="exportBtn" title="Export JSON"><span>⬇️</span> Export</button>
-        <button class="btn" id="importBtn" title="Import JSON"><span>⬆️</span> Import</button>
-        <input class="fileInput" id="fileInput" type="file" accept="application/json" />
-        <button class="btn danger" id="clearWeekBtn" title="Csak ezt a hetet törli a mentésből"><span>🗑️</span> Hét törlése</button>
-      </div>
-    </header>
-
-    <div class="banner" id="readonlyBanner">
-      <div class="dot" aria-hidden="true"></div>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
       <div>
-        <div style="font-weight:800; margin-bottom:3px;">Read-only megosztott nézet</div>
-        <div class="mini">Ebben a nézetben nem tudsz szerkeszteni. Ha saját mentést akarsz: nyisd meg a linket hash nélkül, vagy készíts exportot és importáld.</div>
+        <h1>DAK Edzői nyilvántartás</h1>
+        <div class="sub" id="modeLine">Szerkesztő mód — automatikus mentés</div>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <div class="cardHeader">
+    <div class="panel" style="flex:1">
+      <div class="row" style="justify-content:space-between">
+        <div class="weekbox">
+          <span class="badge" id="weekLabel">Hét</span>
           <div>
-            <h2>Heti beosztás</h2>
-            <div class="muted">Kattints egy cellára szerkesztéshez. Ütközés (azonos gyerek ugyanabban az idősávban több edzőnél) pirossal jelölve.</div>
-          </div>
-          <div class="row">
-            <button class="btn small" id="todayBtn" title="Ugrás a jelenlegi hétre"><span>🧭</span> Aktuális hét</button>
-            <button class="btn small" id="copyWeekKeyBtn" title="Mentési kulcs másolása (debug/ellenőrzés)"><span>🧩</span> Kulcs</button>
+            <div><b id="weekRangeText">—</b></div>
+            <div class="small" id="weekStartText">—</div>
           </div>
         </div>
-        <div class="cardBody">
-          <div class="tableWrap">
-            <table id="scheduleTable" aria-label="Heti beosztás táblázat">
-              <!-- JS tölti -->
-            </table>
-          </div>
-          <div class="hint" style="margin-top:10px;">
-            Tipp: a gyerekeket írd vesszővel vagy új sorban. Mentés automatikus (localStorage).
-            <span class="kbd">Esc</span> bezárja a modalt.
-          </div>
+        <div class="row">
+          <button class="btn" id="prevWeekBtn" title="Előző hét">← Előző</button>
+          <button class="btn" id="todayWeekBtn" title="Ugrás az aktuális hétre">Ma</button>
+          <button class="btn primary" id="copyPrevWeekBtn" title="Az előző hét teljes beosztását átmásolja erre a hétre">
+            Másolás előző hétről
+          </button>
+          <button class="btn" id="nextWeekBtn" title="Következő hét">Következő →</button>
         </div>
       </div>
 
-      <div class="card">
-        <div class="cardHeader">
-          <div>
-            <h2>Állapot & gyors infók</h2>
-            <div class="muted">Összefoglaló az aktuális hétről</div>
-          </div>
+      <div class="row">
+        <input class="input" id="searchInput" placeholder="Gyerek keresése (pl. Martin)" />
+        <button class="btn" id="clearSearchBtn">Törlés</button>
+      </div>
+
+      <div class="row" style="justify-content:space-between">
+        <div class="row" style="gap:8px">
+          <button class="btn primary" id="shareLinkBtn">Megosztható link (csak nézés)</button>
+          <button class="btn" id="printBtn">Nyomtatás / PDF</button>
         </div>
-        <div class="cardBody" id="sidePanel">
-          <!-- JS tölti -->
+        <div class="row" style="gap:8px">
+          <button class="btn" id="exportBtn">Export</button>
+          <label class="btn ghost" for="importFile" style="cursor:pointer">Import</label>
+          <input type="file" id="importFile" accept="application/json" style="display:none" />
+          <button class="btn danger" id="resetWeekBtn" title="Csak az aktuális hét törlése">Hét törlése</button>
         </div>
       </div>
+
+      <div class="results" id="searchResults"></div>
     </div>
   </div>
 
-  <!-- Edit Modal -->
-  <div class="modalOverlay" id="editOverlay" role="dialog" aria-modal="true" aria-labelledby="editTitle">
-    <div class="modal">
-      <div class="modalHead">
-        <div>
-          <h3 id="editTitle">Szerkesztés</h3>
-          <div class="meta" id="editMeta">—</div>
-        </div>
-        <button class="btn small" id="closeEditBtn" title="Bezárás (Esc)"><span>✖️</span> Bezár</button>
+  <!-- 2-es: Heti összesítő -->
+  <div class="summaryWrap" id="summaryWrap">
+    <div class="summaryHead">
+      <div>
+        <div class="summaryTitle">Heti összesítő</div>
+        <div class="summarySub" id="summarySub">—</div>
       </div>
-      <div class="modalBody">
-        <div class="field">
-          <label for="kidsInput">Gyerekek (vesszővel vagy új sorban)</label>
-          <textarea id="kidsInput" placeholder="pl.: Martin, Ádám&#10;Bence"></textarea>
-          <div class="hint" id="conflictHint" style="display:none;color:#fecaca;">
-            ⚠️ Ütközés: a listában szereplő gyerek(ek) ugyanebben az idősávban máshol is szerepelnek.
-          </div>
-        </div>
-        <div class="row" style="justify-content:space-between; align-items:center;">
-          <div class="hint">Mentés után a heti összesítő automatikusan frissül.</div>
-          <button class="btn danger small" id="clearCellBtn" title="Cellatartalom törlése"><span>🧽</span> Cellatörlés</button>
-        </div>
+      <div class="summarySub">Max: <b>3 gyerek / cella</b></div>
+    </div>
+    <div class="summaryGrid" id="summaryGrid"></div>
+  </div>
+
+  <div class="hint">
+    <span>Tippek:</span>
+    <span><kbd>Katt</kbd> a cellára → név hozzáadás/törlés</span>
+    <span>Max <b>3</b> gyerek / cella</span>
+    <span>Ütközés jelzés: ugyanaz a név ugyanabban az idősávban több edzőnél</span>
+  </div>
+
+  <div class="tableWrap">
+    <table id="scheduleTable"></table>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modalHeader">
+      <div>
+        <h2 id="modalTitle">Cellaszerkesztés</h2>
+        <div class="meta" id="modalMeta">—</div>
       </div>
-      <div class="modalFoot">
-        <div class="row">
-          <button class="btn" id="cancelEditBtn"><span>↩️</span> Mégse</button>
-        </div>
-        <div class="row">
-          <button class="btn primary" id="saveEditBtn"><span>💾</span> Mentés</button>
-        </div>
+      <button class="btn ghost" id="closeModalBtn">Bezár</button>
+    </div>
+    <div class="modalBody">
+      <div class="listRow">
+        <input class="input" id="nameInput" placeholder="Írj be egy nevet, majd Enter" />
+        <button class="btn primary" id="addNameBtn">Hozzáad</button>
+      </div>
+      <div class="warnline" id="limitWarn">Elérted a maximumot (3 gyerek / cella).</div>
+
+      <div class="divider"></div>
+
+      <div class="small">Jelenlegi nevek ebben a cellában:</div>
+      <div style="margin-top:8px" class="chips" id="modalChips"></div>
+
+      <div class="divider"></div>
+
+      <div class="small">Javaslatok (korábbi nevekből):</div>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+    <div class="modalFooter">
+      <div class="small" id="conflictHint">—</div>
+      <div class="row">
+        <button class="btn" id="clearCellBtn">Cella ürítése</button>
+        <button class="btn primary" id="doneBtn">Kész</button>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Summary Modal -->
-  <div class="modalOverlay" id="summaryOverlay" role="dialog" aria-modal="true" aria-labelledby="summaryTitle">
-    <div class="modal" style="width:min(980px, 100%);">
-      <div class="modalHead">
-        <div>
-          <h3 id="summaryTitle">Heti összesítő</h3>
-          <div class="meta" id="summaryMeta">—</div>
-        </div>
-        <button class="btn small" id="closeSummaryBtn" title="Bezárás (Esc)"><span>✖️</span> Bezár</button>
-      </div>
-      <div class="modalBody" id="summaryBody">
-        <!-- JS tölti -->
-      </div>
-      <div class="modalFoot">
-        <div class="row">
-          <button class="btn" id="copySummaryBtn" title="Összesítő másolása vágólapra"><span>📋</span> Másolás</button>
-        </div>
-        <div class="row">
-          <button class="btn primary" id="closeSummaryBtn2"><span>✅</span> Kész</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<script>
+(() => {
+  const COACHES = ["Bálint Zsolt", "Bakos Péter", "Somogyi Gábor"];
+  const DEFAULT_SLOTS = ["17:00", "18:00"];
+  const DAYS = [
+    { key: "mon", name: "Hétfő" },
+    { key: "tue", name: "Kedd" },
+    { key: "wed", name: "Szerda" },
+    { key: "thu", name: "Csütörtök" },
+    { key: "fri", name: "Péntek" }
+  ];
+  const STORAGE_KEY = "dak_schedule_v1";
 
-  <!-- Share Modal -->
-  <div class="modalOverlay" id="shareOverlay" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
-    <div class="modal">
-      <div class="modalHead">
-        <div>
-          <h3 id="shareTitle">Megosztás (read-only link)</h3>
-          <div class="meta">Ezt elküldheted bárkinek: meg tudja nézni, de nem tudja szerkeszteni.</div>
-        </div>
-        <button class="btn small" id="closeShareBtn" title="Bezárás (Esc)"><span>✖️</span> Bezár</button>
-      </div>
-      <div class="modalBody">
-        <div class="field">
-          <label for="shareLink">Link</label>
-          <input id="shareLink" type="text" readonly />
-          <div class="hint">A link a jelenlegi hét adatait tartalmazza a URL hash-ben.</div>
-        </div>
-        <div class="row">
-          <button class="btn primary" id="copyShareBtn"><span>📋</span> Link másolása</button>
-          <button class="btn" id="openShareBtn"><span>👁️</span> Megnyitás</button>
-        </div>
-      </div>
-      <div class="modalFoot">
-        <div class="row">
-          <button class="btn" id="closeShareBtn2"><span>✅</span> Kész</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  let state = {
+    viewOnly: false,
+    currentWeekStart: mondayOf(new Date()),
+    db: loadDB(),
+    sel: null,
+    search: ""
+  };
 
-  <div class="toast" id="toast">Mentve</div>
+  const urlInfo = parseHash();
+  if (urlInfo.viewOnly && urlInfo.data) {
+    try {
+      state.viewOnly = true;
+      const shared = decodeSharedData(urlInfo.data);
+      state.currentWeekStart = new Date(shared.weekStart + "T00:00:00");
+      state.db = { weeks: { [shared.weekStart]: shared }, nameBank: shared.nameBank || [] };
+      document.getElementById("modeLine").textContent = "Néző mód (read-only) — szerkesztés letiltva";
+      disableEditorUI();
+    } catch (e) {
+      alert("Hiba a megosztott link betöltésekor. Lehet, hogy sérült a link.");
+      state.viewOnly = false;
+    }
+  }
 
-  <script>
-    /***********************
-     *  CONFIG (fix edzők / idősávok / napok)
-     ***********************/
-    const COACHES = [
-      { id: "edzo1", name: "Edző 1" },
-      { id: "edzo2", name: "Edző 2" },
-      { id: "edzo3", name: "Edző 3" },
-      { id: "edzo4", name: "Edző 4" }
-    ];
+  const elTable = document.getElementById("scheduleTable");
+  const weekRangeText = document.getElementById("weekRangeText");
+  const weekStartText = document.getElementById("weekStartText");
+  const weekLabel = document.getElementById("weekLabel");
 
-    const DAYS = [
-      { id: "mon", label: "Hétfő" },
-      { id: "tue", label: "Kedd" },
-      { id: "wed", label: "Szerda" },
-      { id: "thu", label: "Csütörtök" },
-      { id: "fri", label: "Péntek" },
-      { id: "sat", label: "Szombat" },
-      { id: "sun", label: "Vasárnap" }
-    ];
+  // 2-es: summary
+  const summarySub = document.getElementById("summarySub");
+  const summaryGrid = document.getElementById("summaryGrid");
 
-    // Ha nálatok csak hétköznap kell, itt egyszerűen töröld a sat/sun-t.
-    const TIME_SLOTS = [
-      "08:00–09:00",
-      "09:00–10:00",
-      "10:00–11:00",
-      "11:00–12:00",
-      "12:00–13:00",
-      "13:00–14:00",
-      "14:00–15:00",
-      "15:00–16:00",
-      "16:00–17:00",
-      "17:00–18:00",
-      "18:00–19:00",
-      "19:00–20:00"
-    ];
+  const prevWeekBtn = document.getElementById("prevWeekBtn");
+  const nextWeekBtn = document.getElementById("nextWeekBtn");
+  const todayWeekBtn = document.getElementById("todayWeekBtn");
+  const copyPrevWeekBtn = document.getElementById("copyPrevWeekBtn");
 
-    /***********************
-     *  STATE
-     ***********************/
-    const els = {
-      scheduleTable: document.getElementById("scheduleTable"),
-      weekLabel: document.getElementById("weekLabel"),
-      weekRange: document.getElementById("weekRange"),
-      prevWeekBtn: document.getElementById("prevWeekBtn"),
-      nextWeekBtn: document.getElementById("nextWeekBtn"),
-      todayBtn: document.getElementById("todayBtn"),
-      clearWeekBtn: document.getElementById("clearWeekBtn"),
-      exportBtn: document.getElementById("exportBtn"),
-      importBtn: document.getElementById("importBtn"),
-      fileInput: document.getElementById("fileInput"),
-      shareBtn: document.getElementById("shareBtn"),
-      copyWeekKeyBtn: document.getElementById("copyWeekKeyBtn"),
+  const searchInput = document.getElementById("searchInput");
+  const clearSearchBtn = document.getElementById("clearSearchBtn");
+  const searchResults = document.getElementById("searchResults");
 
-      sidePanel: document.getElementById("sidePanel"),
+  const printBtn = document.getElementById("printBtn");
+  const shareLinkBtn = document.getElementById("shareLinkBtn");
+  const exportBtn = document.getElementById("exportBtn");
+  const importFile = document.getElementById("importFile");
+  const resetWeekBtn = document.getElementById("resetWeekBtn");
 
-      editOverlay: document.getElementById("editOverlay"),
-      editTitle: document.getElementById("editTitle"),
-      editMeta: document.getElementById("editMeta"),
-      kidsInput: document.getElementById("kidsInput"),
-      conflictHint: document.getElementById("conflictHint"),
-      closeEditBtn: document.getElementById("closeEditBtn"),
-      cancelEditBtn: document.getElementById("cancelEditBtn"),
-      saveEditBtn: document.getElementById("saveEditBtn"),
-      clearCellBtn: document.getElementById("clearCellBtn"),
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+  const doneBtn = document.getElementById("doneBtn");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalMeta = document.getElementById("modalMeta");
+  const nameInput = document.getElementById("nameInput");
+  const addNameBtn = document.getElementById("addNameBtn");
+  const modalChips = document.getElementById("modalChips");
+  const suggestions = document.getElementById("suggestions");
+  const limitWarn = document.getElementById("limitWarn");
+  const clearCellBtn = document.getElementById("clearCellBtn");
+  const conflictHint = document.getElementById("conflictHint");
 
-      summaryBtn: document.getElementById("summaryBtn"),
-      summaryOverlay: document.getElementById("summaryOverlay"),
-      closeSummaryBtn: document.getElementById("closeSummaryBtn"),
-      closeSummaryBtn2: document.getElementById("closeSummaryBtn2"),
-      summaryMeta: document.getElementById("summaryMeta"),
-      summaryBody: document.getElementById("summaryBody"),
-      copySummaryBtn: document.getElementById("copySummaryBtn"),
+  prevWeekBtn.addEventListener("click", () => { if (!state.viewOnly) shiftWeek(-7); else shiftWeekReadOnly(-7); });
+  nextWeekBtn.addEventListener("click", () => { if (!state.viewOnly) shiftWeek( 7); else shiftWeekReadOnly( 7); });
+  todayWeekBtn.addEventListener("click", () => { if (!state.viewOnly) setWeek(mondayOf(new Date())); else setWeekReadOnly(mondayOf(new Date())); });
 
-      shareOverlay: document.getElementById("shareOverlay"),
-      closeShareBtn: document.getElementById("closeShareBtn"),
-      closeShareBtn2: document.getElementById("closeShareBtn2"),
-      shareLink: document.getElementById("shareLink"),
-      copyShareBtn: document.getElementById("copyShareBtn"),
-      openShareBtn: document.getElementById("openShareBtn"),
+  // 1-es: előző hét másolása (teljes hét)
+  copyPrevWeekBtn.addEventListener("click", () => {
+    if (state.viewOnly) return;
 
-      toast: document.getElementById("toast"),
-      readonlyBanner: document.getElementById("readonlyBanner"),
+    const currentWk = getWeekKey(state.currentWeekStart);
+
+    const prevDate = new Date(state.currentWeekStart);
+    prevDate.setDate(prevDate.getDate() - 7);
+    const prevWk = getWeekKey(mondayOf(prevDate));
+
+    const prevWeek = state.db.weeks?.[prevWk];
+    if (!prevWeek) {
+      alert("Az előző hét még üres / nincs adat, ezért nincs mit másolni.");
+      return;
+    }
+
+    const currentWeek = ensureWeek(currentWk);
+
+    const currentHasAny = weekHasAnyData(currentWeek);
+    if (currentHasAny) {
+      const ok = confirm("A jelenlegi héten már van adat. Biztosan felülírod az egészet az előző hét alapján?");
+      if (!ok) return;
+    }
+
+    currentWeek.slots = Array.isArray(prevWeek.slots) ? prevWeek.slots.slice() : DEFAULT_SLOTS.slice();
+    currentWeek.entries = deepClone(prevWeek.entries);
+
+    saveDB(state.db);
+    render();
+    alert("Kész ✅ Az előző hét beosztása átmásolva erre a hétre.");
+  });
+
+  searchInput.addEventListener("input", () => {
+    state.search = (searchInput.value || "").trim();
+    render();
+  });
+  clearSearchBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    state.search = "";
+    render();
+  });
+
+  printBtn.addEventListener("click", () => window.print());
+
+  shareLinkBtn.addEventListener("click", async () => {
+    const wk = getWeekKey(state.currentWeekStart);
+    const weekObj = ensureWeek(wk);
+    const sharedObj = {
+      weekStart: wk,
+      slots: weekObj.slots,
+      entries: weekObj.entries,
+      nameBank: state.db.nameBank || []
     };
+    const encoded = encodeSharedData(sharedObj);
+    const url = `${location.origin}${location.pathname}#view=1&data=${encoded}`;
 
-    let readOnly = false;
-
-    // currentWeekStart: Date (hétfő 00:00)
-    let currentWeekStart = getMonday(new Date());
-
-    // data model:
-    // data[dayId][slotIndex][coachId] = array of kids (strings)
-    // we'll store as { weekStartISO, data }
-    let weekData = createEmptyWeekData();
-
-    // editing context
-    let editCtx = null; // { dayId, slotIndex, coachId }
-
-    /***********************
-     *  UTIL
-     ***********************/
-    function pad2(n){ return String(n).padStart(2,"0"); }
-
-    function toISODate(d){
-      const x = new Date(d);
-      x.setHours(0,0,0,0);
-      return `${x.getFullYear()}-${pad2(x.getMonth()+1)}-${pad2(x.getDate())}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      alert("Megosztható link a vágólapra másolva ✅");
+    } catch {
+      prompt("Másold ki a linket:", url);
     }
+  });
 
-    function formatHU(d){
-      // YYYY.MM.DD
-      const x = new Date(d);
-      return `${x.getFullYear()}.${pad2(x.getMonth()+1)}.${pad2(x.getDate())}`;
+  exportBtn.addEventListener("click", () => {
+    if (state.viewOnly) return;
+    const blob = new Blob([JSON.stringify(state.db, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `dak_edzoi_nyilvantartas_export_${todayISO()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  importFile.addEventListener("change", async (e) => {
+    if (state.viewOnly) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const text = await file.text();
+    try{
+      const obj = JSON.parse(text);
+      if (!obj || typeof obj !== "object" || !obj.weeks) throw new Error("Invalid");
+      state.db = sanitizeDB(obj);
+      saveDB(state.db);
+      alert("Import sikeres ✅");
+      render();
+    } catch {
+      alert("Import hiba: nem megfelelő JSON formátum.");
+    } finally {
+      importFile.value = "";
     }
+  });
 
-    function addDays(date, days){
-      const d = new Date(date);
-      d.setDate(d.getDate() + days);
-      return d;
+  resetWeekBtn.addEventListener("click", () => {
+    if (state.viewOnly) return;
+    const wk = getWeekKey(state.currentWeekStart);
+    const ok = confirm(`Biztos törlöd a(z) ${wk} héten lévő összes beosztást?`);
+    if (!ok) return;
+    delete state.db.weeks[wk];
+    saveDB(state.db);
+    render();
+  });
+
+  closeModalBtn.addEventListener("click", closeModal);
+  doneBtn.addEventListener("click", closeModal);
+  modalBackdrop.addEventListener("click", (e) => {
+    if (e.target === modalBackdrop) closeModal();
+  });
+
+  addNameBtn.addEventListener("click", () => addNameFromInput());
+  nameInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addNameFromInput();
+    } else if (e.key === "Escape") {
+      closeModal();
     }
+  });
 
-    function getMonday(date){
-      const d = new Date(date);
-      d.setHours(0,0,0,0);
-      const day = d.getDay(); // 0=Sun..6=Sat
-      const diff = (day === 0 ? -6 : 1 - day); // back to Monday
-      d.setDate(d.getDate() + diff);
-      return d;
-    }
+  clearCellBtn.addEventListener("click", () => {
+    if (!state.sel) return;
+    const {wk, dayIdx, coachIdx, slotIdx} = state.sel;
+    setCellNames(wk, dayIdx, coachIdx, slotIdx, []);
+    openModal(state.sel);
+    render();
+  });
 
-    function getWeekKey(weekStartISO){
-      return `dak_schedule_${weekStartISO}`;
-    }
+  render();
 
-    function toast(msg){
-      els.toast.textContent = msg;
-      els.toast.classList.add("show");
-      clearTimeout(toast._t);
-      toast._t = setTimeout(()=>els.toast.classList.remove("show"), 1600);
-    }
+  function render(){
+    const wk = getWeekKey(state.currentWeekStart);
+    const monday = new Date(wk + "T00:00:00");
+    const friday = new Date(monday); friday.setDate(friday.getDate() + 4);
 
-    function normalizeKidsText(text){
-      // split by comma or newline, trim, remove empties, dedupe keeping order
-      const raw = text
-        .split(/\n|,/g)
-        .map(s => s.trim())
-        .filter(Boolean);
+    weekRangeText.textContent = `${fmtDate(monday)} – ${fmtDate(friday)}`;
+    weekStartText.textContent = `Hét kezdete: ${wk}`;
+    weekLabel.textContent = state.viewOnly ? "Néző mód" : "Szerkesztés";
 
-      const seen = new Set();
-      const out = [];
-      for (const k of raw){
-        const key = k.toLowerCase();
-        if (!seen.has(key)){
-          seen.add(key);
-          out.push(k);
-        }
-      }
-      return out;
-    }
+    const weekObj = ensureWeek(wk);
+    const slots = weekObj.slots || DEFAULT_SLOTS;
 
-    function createEmptyWeekData(){
-      const data = {};
-      for (const day of DAYS){
-        data[day.id] = [];
-        for (let i=0;i<TIME_SLOTS.length;i++){
-          const row = {};
-          for (const c of COACHES){
-            row[c.id] = [];
-          }
-          data[day.id].push(row);
-        }
-      }
-      return { weekStartISO: toISODate(currentWeekStart), data };
-    }
+    // 2-es: summary render
+    renderSummary(weekObj, slots);
 
-    function safeJsonParse(str){
-      try { return JSON.parse(str); } catch { return null; }
-    }
+    const conflicts = computeConflicts(weekObj, slots);
 
-    function b64encodeUnicode(obj){
-      const json = JSON.stringify(obj);
-      const utf8 = new TextEncoder().encode(json);
-      let bin = "";
-      utf8.forEach(b => bin += String.fromCharCode(b));
-      return btoa(bin);
-    }
+    const thead = buildThead(slots);
+    const tbody = buildTbody(weekObj, slots, conflicts);
+    elTable.innerHTML = "";
+    elTable.appendChild(thead);
+    elTable.appendChild(tbody);
 
-    function b64decodeUnicode(b64){
-      const bin = atob(b64);
-      const bytes = new Uint8Array([...bin].map(ch => ch.charCodeAt(0)));
-      const json = new TextDecoder().decode(bytes);
-      return JSON.parse(json);
-    }
+    renderSearch(weekObj, slots);
+  }
 
-    function setReadOnlyMode(on){
-      readOnly = !!on;
-      els.readonlyBanner.classList.toggle("show", readOnly);
+  // 2-es funkció: heti összesítő számítás + kirajzolás
+  function renderSummary(weekObj, slots){
+    const totalCellsPerCoach = DAYS.length * slots.length; // 5 * 2 = 10
+    summarySub.textContent = `Hét összes cellája edzőnként: ${totalCellsPerCoach} (napok: ${DAYS.length}, idősávok: ${slots.length})`;
 
-      // disable top actions that modify local data
-      els.clearWeekBtn.disabled = readOnly;
-      els.importBtn.disabled = readOnly;
-      // export/share ok in readonly
-    }
+    summaryGrid.innerHTML = "";
+    for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
+      let kidCount = 0;
+      let filledCells = 0;
 
-    /***********************
-     *  LOAD FROM URL HASH (read-only share)
-     ***********************/
-    function tryLoadSharedView(){
-      const hash = location.hash || "";
-      const m = hash.match(/#view=([^&]+)/);
-      if (!m) return false;
-
-      try{
-        const payload = b64decodeUnicode(m[1]);
-        // payload: { weekStartISO, data }
-        if (!payload || !payload.weekStartISO || !payload.data) return false;
-
-        currentWeekStart = getMonday(new Date(payload.weekStartISO));
-        weekData = payload;
-
-        setReadOnlyMode(true);
-        return true;
-      }catch(e){
-        console.warn("Share decode failed", e);
-        return false;
-      }
-    }
-
-    /***********************
-     *  LOCAL STORAGE
-     ***********************/
-    function loadWeekFromStorage(){
-      const weekISO = toISODate(currentWeekStart);
-      const key = getWeekKey(weekISO);
-      const raw = localStorage.getItem(key);
-      const parsed = safeJsonParse(raw);
-
-      if (parsed && parsed.weekStartISO === weekISO && parsed.data){
-        weekData = parsed;
-      } else {
-        weekData = createEmptyWeekData();
-        weekData.weekStartISO = weekISO;
-      }
-    }
-
-    function saveWeekToStorage(){
-      if (readOnly) return;
-      const weekISO = toISODate(currentWeekStart);
-      weekData.weekStartISO = weekISO;
-      const key = getWeekKey(weekISO);
-      localStorage.setItem(key, JSON.stringify(weekData));
-    }
-
-    function clearWeekStorage(){
-      if (readOnly) return;
-      const weekISO = toISODate(currentWeekStart);
-      localStorage.removeItem(getWeekKey(weekISO));
-      loadWeekFromStorage();
-      renderAll();
-      toast("Hét törölve");
-    }
-
-    /***********************
-     *  RENDER TABLE
-     ***********************/
-    function renderTable(){
-      // Table structure:
-      // THEAD: first row empty corner + for each coach: coach name
-      // TBODY: for each day: day separator row, then each time slot row with time in sticky TH,
-      // and coach cells.
-      const weekISO = toISODate(currentWeekStart);
-      const weekEnd = addDays(currentWeekStart, 6);
-
-      els.weekLabel.textContent = `Hét kezdete: ${formatHU(currentWeekStart)}`;
-      els.weekRange.textContent = `(${formatHU(currentWeekStart)} – ${formatHU(weekEnd)})`;
-
-      const t = [];
-      t.push("<thead><tr>");
-      t.push(`<th style="min-width:140px">Idősáv / nap</th>`);
-      for (const c of COACHES){
-        t.push(`<th style="min-width:220px">${escapeHtml(c.name)}</th>`);
-      }
-      t.push("</tr></thead>");
-
-      t.push("<tbody>");
-      for (let dIdx=0; dIdx<DAYS.length; dIdx++){
-        const day = DAYS[dIdx];
-        const date = addDays(currentWeekStart, dIdx);
-        const dayLabel = `${day.label} · ${formatHU(date)}`;
-
-        // Day header row
-        t.push(`<tr><th class="time" colspan="${COACHES.length+1}" style="position:sticky;left:0;z-index:3;background:rgba(12,18,40,.95);text-transform:none;letter-spacing:0;font-size:13px;color:#f3f4f6;">${escapeHtml(dayLabel)}</th></tr>`);
-
-        for (let s=0; s<TIME_SLOTS.length; s++){
-          t.push("<tr>");
-          t.push(`<th class="time">${escapeHtml(TIME_SLOTS[s])}</th>`);
-          for (const c of COACHES){
-            const kids = (weekData.data?.[day.id]?.[s]?.[c.id]) || [];
-            const preview = renderKidsTags(kids);
-
-            const cellId = `cell_${day.id}_${s}_${c.id}`;
-            t.push(`
-              <td data-day="${day.id}" data-slot="${s}" data-coach="${c.id}">
-                <span class="confBadge" title="Ütközés">Ütközés</span>
-                <div class="cell ${readOnly ? "readonly":""}" id="${cellId}" title="${readOnly ? "Read-only" : "Katt: szerkesztés"}">
-                  ${preview}
-                </div>
-              </td>
-            `);
-          }
-          t.push("</tr>");
-        }
-      }
-      t.push("</tbody>");
-
-      els.scheduleTable.innerHTML = t.join("");
-
-      // click handlers
-      els.scheduleTable.querySelectorAll("td[data-day]").forEach(td=>{
-        td.addEventListener("click", ()=>{
-          if (readOnly) return;
-          const dayId = td.getAttribute("data-day");
-          const slotIndex = parseInt(td.getAttribute("data-slot"), 10);
-          const coachId = td.getAttribute("data-coach");
-          openEdit(dayId, slotIndex, coachId);
-        });
-      });
-    }
-
-    function renderKidsTags(kids){
-      if (!kids || kids.length === 0){
-        return `<div class="kids"><span class="tag empty">— üres —</span></div>`;
-      }
-      const out = [];
-      out.push(`<div class="kids">`);
-      kids.forEach((k, idx)=>{
-        const alt = (idx % 2 === 1) ? "alt" : "";
-        out.push(`<span class="tag ${alt}">${escapeHtml(k)}</span>`);
-      });
-      out.push(`</div>`);
-      return out.join("");
-    }
-
-    function escapeHtml(s){
-      return String(s)
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    /***********************
-     *  CONFLICT DETECTION (ütközésjelzés)
-     *  Same day+slot: same kid appears in multiple coach cells
-     ***********************/
-    function computeConflicts(){
-      // returns Set of td elements (or keys) that are in conflict + map kid -> occurrences
-      const conflicts = new Set();
-      const details = {}; // key: day|slot => { kidLower: [coachId...] }
-
-      for (const day of DAYS){
-        for (let s=0; s<TIME_SLOTS.length; s++){
-          const occ = new Map(); // kidLower -> coaches array
-          for (const c of COACHES){
-            const kids = (weekData.data?.[day.id]?.[s]?.[c.id]) || [];
-            for (const kid of kids){
-              const k = kid.trim().toLowerCase();
-              if (!k) continue;
-              if (!occ.has(k)) occ.set(k, []);
-              occ.get(k).push({ coachId: c.id, kid });
-            }
-          }
-          // mark conflicts
-          for (const [kidLower, arr] of occ.entries()){
-            if (arr.length > 1){
-              const slotKey = `${day.id}|${s}`;
-              if (!details[slotKey]) details[slotKey] = {};
-              details[slotKey][kidLower] = arr.map(x=>({coachId:x.coachId, kid:x.kid}));
-              // each involved coach cell conflict
-              for (const x of arr){
-                conflicts.add(`${day.id}|${s}|${x.coachId}`);
-              }
-            }
-          }
-        }
-      }
-      return { conflicts, details };
-    }
-
-    function applyConflictUI(){
-      const { conflicts } = computeConflicts();
-
-      // clear all first
-      els.scheduleTable.querySelectorAll("td[data-day]").forEach(td=>{
-        td.classList.remove("conflict");
-      });
-
-      // apply
-      conflicts.forEach(key=>{
-        const [dayId, slotStr, coachId] = key.split("|");
-        const td = els.scheduleTable.querySelector(`td[data-day="${dayId}"][data-slot="${slotStr}"][data-coach="${coachId}"]`);
-        if (td) td.classList.add("conflict");
-      });
-    }
-
-    /***********************
-     *  SIDE PANEL + SUMMARY
-     ***********************/
-    function buildWeekStats(){
-      // totals
-      let totalEntries = 0;  // total kid occurrences across all
-      let totalUniqueKids = new Set();
-      let conflictCount = 0;
-
-      const byCoach = {};
-      for (const c of COACHES){
-        byCoach[c.id] = {
-          name: c.name,
-          entries: 0,
-          uniqueKids: new Set(),
-          byDay: Object.fromEntries(DAYS.map(d=>[d.id, 0]))
-        };
-      }
-
-      const conflictInfo = computeConflicts();
-      conflictCount = conflictInfo.conflicts.size;
-
-      for (const day of DAYS){
-        for (let s=0; s<TIME_SLOTS.length; s++){
-          for (const c of COACHES){
-            const kids = (weekData.data?.[day.id]?.[s]?.[c.id]) || [];
-            for (const kid of kids){
-              totalEntries++;
-              totalUniqueKids.add(kid.trim().toLowerCase());
-              byCoach[c.id].entries++;
-              byCoach[c.id].uniqueKids.add(kid.trim().toLowerCase());
-              byCoach[c.id].byDay[day.id] += 1;
-            }
+      for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
+        for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
+          const arr = weekObj.entries?.[dayIdx]?.[coachIdx]?.[slotIdx];
+          if (Array.isArray(arr) && arr.length){
+            filledCells += 1;
+            kidCount += arr.length;
           }
         }
       }
 
-      // convert sets to counts + keep sample list for summary
-      const coachArr = COACHES.map(c=>{
-        const o = byCoach[c.id];
-        return {
-          id: c.id,
-          name: o.name,
-          entries: o.entries,
-          uniqueCount: o.uniqueKids.size,
-          byDay: o.byDay
-        };
-      });
+      const emptyCells = totalCellsPerCoach - filledCells;
+      const maxKids = totalCellsPerCoach * 3;
+      const loadPct = maxKids ? Math.round((kidCount / maxKids) * 100) : 0;
 
-      return {
-        totalEntries,
-        totalUnique: totalUniqueKids.size,
-        conflictCells: conflictCount,
-        coachArr
-      };
-    }
-
-    function renderSidePanel(){
-      const stats = buildWeekStats();
-      const weekISO = toISODate(currentWeekStart);
-
-      const blocks = [];
-
-      blocks.push(`
-        <div class="sideRow">
-          <div class="stat">
-            <div class="k">Mentés kulcs</div>
-            <div class="v" style="font-size:13px;font-weight:800;letter-spacing:.2px;">${escapeHtml(getWeekKey(weekISO))}</div>
+      const card = document.createElement("div");
+      card.className = "sumCard";
+      card.innerHTML = `
+        <div class="sumName">
+          <span>${COACHES[coachIdx]}</span>
+          <span class="sumTag">${kidCount}/${maxKids} hely • ${loadPct}%</span>
+        </div>
+        <div class="sumMetrics">
+          <div class="metric">
+            <div class="k">Gyerekek összesen</div>
+            <div class="v">${kidCount}</div>
+            <div class="s">max: ${maxKids}</div>
+          </div>
+          <div class="metric">
+            <div class="k">Foglalt cellák</div>
+            <div class="v">${filledCells}</div>
+            <div class="s">max: ${totalCellsPerCoach}</div>
+          </div>
+          <div class="metric">
+            <div class="k">Üres cellák</div>
+            <div class="v">${emptyCells}</div>
+            <div class="s">max: ${totalCellsPerCoach}</div>
           </div>
         </div>
-      `);
-
-      blocks.push(`
-        <div class="sideRow">
-          <div class="stat">
-            <div class="k">Összes bejegyzés</div>
-            <div class="v">${stats.totalEntries}</div>
-          </div>
-          <div class="stat" style="text-align:right;">
-            <div class="k">Egyedi gyerek (kb.)</div>
-            <div class="v">${stats.totalUnique}</div>
-          </div>
-        </div>
-      `);
-
-      blocks.push(`
-        <div class="sideRow">
-          <div class="stat">
-            <div class="k">Ütközéses cellák</div>
-            <div class="v" style="color:${stats.conflictCells ? "#fecaca" : "#d1fae5"}">${stats.conflictCells}</div>
-          </div>
-          <div class="mini" style="max-width: 180px; text-align:right;">
-            ${stats.conflictCells ? "Piros keret jelzi az azonos idősávban duplán szereplő gyereket." : "Nincs ütközés."}
-          </div>
-        </div>
-      `);
-
-      blocks.push(`<div class="hr"></div>`);
-      blocks.push(`<div class="mini" style="font-weight:800;color:#f3f4f6;margin-bottom:8px;">Edzőnként</div>`);
-
-      for (const c of stats.coachArr){
-        blocks.push(`
-          <div class="sideRow">
-            <div class="stat">
-              <div class="k">${escapeHtml(c.name)}</div>
-              <div class="v" style="font-size:14px;">${c.entries} <span class="mini">bejegyzés</span></div>
-            </div>
-            <div class="stat" style="text-align:right;">
-              <div class="k">Egyedi</div>
-              <div class="v" style="font-size:14px;">${c.uniqueCount}</div>
-            </div>
-          </div>
-        `);
-      }
-
-      blocks.push(`<div class="hr"></div>`);
-      blocks.push(`<div class="mini">Read-only megosztás: <b>Megosztás</b> gomb → link másolása.</div>`);
-
-      els.sidePanel.innerHTML = blocks.join("");
-    }
-
-    function renderSummaryModal(){
-      const weekEnd = addDays(currentWeekStart, 6);
-      els.summaryMeta.textContent = `${formatHU(currentWeekStart)} – ${formatHU(weekEnd)}`;
-
-      // Build detailed per-coach summary: totals + per-day + unique kids list
-      const byCoachKids = {};
-      for (const c of COACHES){
-        byCoachKids[c.id] = {
-          name: c.name,
-          entries: 0,
-          unique: new Map(), // lower -> original first-seen
-          byDay: Object.fromEntries(DAYS.map(d=>[d.id, 0]))
-        };
-      }
-
-      for (const day of DAYS){
-        for (let s=0; s<TIME_SLOTS.length; s++){
-          for (const c of COACHES){
-            const kids = (weekData.data?.[day.id]?.[s]?.[c.id]) || [];
-            for (const kid of kids){
-              byCoachKids[c.id].entries++;
-              byCoachKids[c.id].byDay[day.id] += 1;
-              const k = kid.trim();
-              const lower = k.toLowerCase();
-              if (!byCoachKids[c.id].unique.has(lower)){
-                byCoachKids[c.id].unique.set(lower, k);
-              }
-            }
-          }
-        }
-      }
-
-      // conflicts details
-      const conflictInfo = computeConflicts();
-      const conflictBlocks = [];
-      const conflictKeys = Object.keys(conflictInfo.details);
-      if (conflictKeys.length){
-        conflictBlocks.push(`<div class="hint" style="margin: 8px 0 10px; color:#fecaca; font-weight:800;">⚠️ Ütközések részletei (nap + idősáv):</div>`);
-        conflictKeys.forEach(slotKey=>{
-          const [dayId, slotStr] = slotKey.split("|");
-          const dayLabel = DAYS.find(d=>d.id===dayId)?.label || dayId;
-          const slotLabel = TIME_SLOTS[parseInt(slotStr,10)] || slotStr;
-
-          const kidMap = conflictInfo.details[slotKey];
-          const lines = [];
-          Object.keys(kidMap).forEach(kidLower=>{
-            const occ = kidMap[kidLower]; // [{coachId,kid}]
-            const who = occ.map(x=>{
-              const coachName = COACHES.find(c=>c.id===x.coachId)?.name || x.coachId;
-              return coachName;
-            }).join(", ");
-            lines.push(`<div class="mini">• <b>${escapeHtml(occ[0].kid)}</b> → ${escapeHtml(who)}</div>`);
-          });
-
-          conflictBlocks.push(`
-            <div style="margin: 8px 0 12px; padding:10px 12px; border-radius: 16px; border:1px solid rgba(239,68,68,.25); background: rgba(239,68,68,.08);">
-              <div style="font-weight:800; margin-bottom:6px;">${escapeHtml(dayLabel)} · ${escapeHtml(slotLabel)}</div>
-              ${lines.join("")}
-            </div>
-          `);
-        });
-      } else {
-        conflictBlocks.push(`<div class="hint" style="margin: 8px 0 10px; color:#d1fae5; font-weight:800;">✅ Nincs ütközés ezen a héten.</div>`);
-      }
-
-      // Build summary table
-      const head = `
-        <table class="summaryTable" aria-label="Heti összesítő táblázat">
-          <thead>
-            <tr>
-              <th>Edző</th>
-              <th>Összes bejegyzés</th>
-              <th>Egyedi gyerek</th>
-              <th>Napi bontás</th>
-              <th>Gyerekek (egyedi)</th>
-            </tr>
-          </thead>
-          <tbody>
       `;
+      summaryGrid.appendChild(card);
+    }
+  }
 
-      const rows = [];
-      for (const c of COACHES){
-        const o = byCoachKids[c.id];
-        const dayBreak = DAYS.map(d=>{
-          const v = o.byDay[d.id];
-          return `${d.label.slice(0,3)}: ${v}`;
-        }).join(" · ");
+  function buildThead(slots){
+    const thead = document.createElement("thead");
 
-        const kids = Array.from(o.unique.values()).sort((a,b)=>a.localeCompare(b, "hu"));
-        const chips = kids.length
-          ? `<div class="chips">${kids.map(k=>`<span class="chip">${escapeHtml(k)}</span>`).join("")}</div>`
-          : `<span class="hint">—</span>`;
+    const tr1 = document.createElement("tr");
+    const th0 = document.createElement("th");
+    th0.textContent = "Dátum";
+    th0.className = "coach";
+    th0.style.textAlign = "left";
+    th0.style.width = "170px";
+    tr1.appendChild(th0);
 
-        rows.push(`
-          <tr>
-            <td style="font-weight:900;">${escapeHtml(o.name)}</td>
-            <td>${o.entries}</td>
-            <td>${o.unique.size}</td>
-            <td class="mini">${escapeHtml(dayBreak)}</td>
-            <td>${chips}</td>
-          </tr>
-        `);
+    for (const coach of COACHES){
+      const th = document.createElement("th");
+      th.className = "coach";
+      th.colSpan = slots.length;
+      th.textContent = coach;
+      tr1.appendChild(th);
+    }
+    thead.appendChild(tr1);
+
+    const tr2 = document.createElement("tr");
+    const thDay = document.createElement("th");
+    thDay.className = "slot";
+    thDay.textContent = "";
+    tr2.appendChild(thDay);
+
+    for (let c=0; c<COACHES.length; c++){
+      for (let s=0; s<slots.length; s++){
+        const th = document.createElement("th");
+        th.className = "slot";
+        th.textContent = slots[s];
+        tr2.appendChild(th);
+      }
+    }
+    thead.appendChild(tr2);
+    return thead;
+  }
+
+  function buildTbody(weekObj, slots, conflicts){
+    const tbody = document.createElement("tbody");
+    const wk = getWeekKey(state.currentWeekStart);
+    const monday = new Date(wk + "T00:00:00");
+
+    for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
+      const tr = document.createElement("tr");
+
+      const date = new Date(monday);
+      date.setDate(date.getDate() + dayIdx);
+
+      const tdDay = document.createElement("td");
+      tdDay.className = "dayCell";
+      tdDay.innerHTML = `<div class="dayName">${DAYS[dayIdx].name}</div><div class="dateText">${fmtDate(date)}</div>`;
+      tr.appendChild(tdDay);
+
+      for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
+        for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
+          const td = document.createElement("td");
+          td.className = "cell";
+
+          const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
+          const hasConflict = names.some(n => conflicts?.[dayIdx]?.[slotIdx]?.[normName(n)] === true);
+          if (hasConflict) td.classList.add("conflict");
+
+          const q = normName(state.search);
+          const matchSearch = q && names.some(n => normName(n).includes(q));
+          if (matchSearch) {
+            td.style.boxShadow = "inset 0 0 0 2px rgba(24,214,161,.35)";
+          } else {
+            td.style.boxShadow = "";
+          }
+
+          const chips = document.createElement("div");
+          chips.className = "chips";
+
+          for (const n of names){
+            const chip = document.createElement("div");
+            const warn = conflicts?.[dayIdx]?.[slotIdx]?.[normName(n)] === true;
+            chip.className = "chip" + (warn ? " warn" : "");
+            chip.textContent = n;
+
+            if (!state.viewOnly){
+              const x = document.createElement("span");
+              x.className = "x";
+              x.textContent = "×";
+              x.title = "Törlés";
+              x.addEventListener("click", (e) => {
+                e.stopPropagation();
+                removeName(wk, dayIdx, coachIdx, slotIdx, n);
+              });
+              chip.appendChild(x);
+            }
+            chips.appendChild(chip);
+          }
+
+          const footer = document.createElement("div");
+          footer.className = "cellFooter";
+          footer.innerHTML = `<span>${names.length}/3</span>`;
+          const plus = document.createElement("span");
+          plus.className = "plus";
+          plus.textContent = "+";
+          footer.appendChild(plus);
+
+          td.appendChild(chips);
+          td.appendChild(footer);
+
+          if (!state.viewOnly){
+            td.addEventListener("click", () => openModal({wk, dayIdx, coachIdx, slotIdx, slots}));
+          } else {
+            td.style.cursor = "default";
+          }
+
+          tr.appendChild(td);
+        }
       }
 
-      const foot = `</tbody></table>`;
+      tbody.appendChild(tr);
+    }
 
-      els.summaryBody.innerHTML = `
-        <div class="hint" style="margin-bottom:10px;">
-          2-es funkció: itt látod edzőnként az összes bejegyzést, az egyedi gyerekeket, napi bontást, és az ütközéseket.
+    return tbody;
+  }
+
+  function renderSearch(weekObj, slots){
+    const qRaw = (state.search || "").trim();
+    const q = normName(qRaw);
+
+    if (!q){
+      searchResults.classList.remove("show");
+      searchResults.innerHTML = "";
+      return;
+    }
+
+    const hits = [];
+    for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
+      for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
+        for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
+          const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
+          const matched = names.filter(n => normName(n).includes(q));
+          if (matched.length){
+            hits.push({dayIdx, slotIdx, coachIdx, names: matched});
+          }
+        }
+      }
+    }
+
+    const wk = getWeekKey(state.currentWeekStart);
+    const monday = new Date(wk + "T00:00:00");
+
+    if (!hits.length){
+      searchResults.classList.add("show");
+      searchResults.innerHTML = `<div class="small">Nincs találat erre a héten: <b style="color:var(--text)">${escapeHtml(qRaw)}</b></div>`;
+      return;
+    }
+
+    let html = `<div class="small">Találatok (${hits.length}): <b style="color:var(--text)">${escapeHtml(qRaw)}</b></div>`;
+    for (const h of hits){
+      const date = new Date(monday);
+      date.setDate(date.getDate() + h.dayIdx);
+      html += `
+        <div class="resItem">
+          <span class="tag">${DAYS[h.dayIdx].name} • ${fmtDate(date)} • ${slots[h.slotIdx]}</span>
+          <span><b style="color:var(--text)">${COACHES[h.coachIdx]}</b> → ${h.names.map(escapeHtml).join(", ")}</span>
         </div>
-        ${head + rows.join("") + foot}
-        <div style="margin-top:14px;">${conflictBlocks.join("")}</div>
       `;
     }
+    searchResults.classList.add("show");
+    searchResults.innerHTML = html;
+  }
 
-    function getSummaryTextForClipboard(){
-      const weekEnd = addDays(currentWeekStart, 6);
-      const lines = [];
-      lines.push(`Heti összesítő: ${formatHU(currentWeekStart)} – ${formatHU(weekEnd)}`);
-      lines.push("");
+  function openModal(sel){
+    state.sel = sel;
+    const weekObj = ensureWeek(sel.wk);
+    const slots = weekObj.slots || DEFAULT_SLOTS;
 
-      // per coach
-      for (const c of COACHES){
-        const unique = new Map();
-        let entries = 0;
-        const byDay = Object.fromEntries(DAYS.map(d=>[d.id, 0]));
+    const dayDate = new Date(sel.wk + "T00:00:00");
+    dayDate.setDate(dayDate.getDate() + sel.dayIdx);
 
-        for (const day of DAYS){
-          for (let s=0; s<TIME_SLOTS.length; s++){
-            const kids = (weekData.data?.[day.id]?.[s]?.[c.id]) || [];
-            for (const kid of kids){
-              entries++;
-              byDay[day.id] += 1;
-              const k = kid.trim();
-              const lower = k.toLowerCase();
-              if (!unique.has(lower)) unique.set(lower, k);
-            }
+    modalTitle.textContent = `${COACHES[sel.coachIdx]} — ${slots[sel.slotIdx]}`;
+    modalMeta.textContent = `${DAYS[sel.dayIdx].name}, ${fmtDate(dayDate)} • Max 3 gyerek`;
+
+    const names = getCellNames(weekObj, sel.dayIdx, sel.coachIdx, sel.slotIdx);
+    renderModalChips(names);
+    renderSuggestions(sel, names);
+
+    const conflicts = computeConflicts(weekObj, slots);
+    const conflictNames = names.filter(n => conflicts?.[sel.dayIdx]?.[sel.slotIdx]?.[normName(n)] === true);
+    conflictHint.textContent = conflictNames.length
+      ? `Ütközés: ${conflictNames.join(", ")} ugyanebben az idősávban más edzőnél is szerepel.`
+      : "Nincs ütközés ebben a cellában.";
+
+    limitWarn.classList.toggle("show", names.length >= 3);
+
+    nameInput.value = "";
+    modalBackdrop.classList.add("show");
+    modalBackdrop.setAttribute("aria-hidden", "false");
+    setTimeout(() => nameInput.focus(), 0);
+  }
+
+  function closeModal(){
+    modalBackdrop.classList.remove("show");
+    modalBackdrop.setAttribute("aria-hidden", "true");
+    state.sel = null;
+    render();
+  }
+
+  function renderModalChips(names){
+    modalChips.innerHTML = "";
+    if (!names.length){
+      modalChips.innerHTML = `<span class="small">— üres —</span>`;
+      return;
+    }
+    for (const n of names){
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = n;
+
+      const x = document.createElement("span");
+      x.className = "x";
+      x.textContent = "×";
+      x.title = "Törlés";
+      x.addEventListener("click", () => {
+        if (!state.sel) return;
+        removeName(state.sel.wk, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx, n);
+        openModal(state.sel);
+      });
+      chip.appendChild(x);
+
+      modalChips.appendChild(chip);
+    }
+  }
+
+  function renderSuggestions(sel, currentNames){
+    const bank = (state.db.nameBank || []).slice().reverse();
+    const existing = new Set(currentNames.map(normName));
+    const q = normName(nameInput.value || "");
+    const filtered = bank
+      .filter(n => !existing.has(normName(n)))
+      .filter(n => !q || normName(n).includes(q))
+      .slice(0, 18);
+
+    suggestions.innerHTML = "";
+    if (!filtered.length){
+      suggestions.innerHTML = `<span class="small">— nincs javaslat —</span>`;
+      return;
+    }
+    for (const n of filtered){
+      const pill = document.createElement("button");
+      pill.type = "button";
+      pill.className = "pill";
+      pill.textContent = n;
+      pill.addEventListener("click", () => {
+        nameInput.value = n;
+        addNameFromInput();
+      });
+      suggestions.appendChild(pill);
+    }
+  }
+
+  nameInput.addEventListener("input", () => {
+    if (!state.sel) return;
+    const wk = state.sel.wk;
+    const weekObj = ensureWeek(wk);
+    const names = getCellNames(weekObj, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx);
+    renderSuggestions(state.sel, names);
+  });
+
+  function addNameFromInput(){
+    if (!state.sel) return;
+    const raw = (nameInput.value || "").trim();
+    if (!raw) return;
+
+    const wk = state.sel.wk;
+    const weekObj = ensureWeek(wk);
+    const names = getCellNames(weekObj, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx);
+
+    if (names.length >= 3){
+      limitWarn.classList.add("show");
+      return;
+    }
+
+    if (names.some(n => normName(n) === normName(raw))){
+      nameInput.value = "";
+      return;
+    }
+
+    const next = [...names, prettifyName(raw)].slice(0,3);
+    setCellNames(wk, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx, next);
+    upsertNameBank(prettifyName(raw));
+
+    openModal(state.sel);
+    render();
+  }
+
+  function loadDB(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return { weeks: {}, nameBank: [] };
+    try{
+      const obj = JSON.parse(raw);
+      return sanitizeDB(obj);
+    } catch {
+      return { weeks: {}, nameBank: [] };
+    }
+  }
+  function saveDB(db){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  }
+
+  function sanitizeDB(obj){
+    const out = { weeks: {}, nameBank: [] };
+    out.nameBank = Array.isArray(obj.nameBank) ? obj.nameBank.filter(s => typeof s === "string").map(prettifyName) : [];
+    const weeks = obj.weeks && typeof obj.weeks === "object" ? obj.weeks : {};
+    for (const [wk, w] of Object.entries(weeks)){
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(wk)) continue;
+      const slots = Array.isArray(w?.slots) ? w.slots.filter(s => typeof s === "string") : DEFAULT_SLOTS.slice();
+      const entries = Array.isArray(w?.entries) ? w.entries : makeEmptyEntries();
+      out.weeks[wk] = {
+        weekStart: wk,
+        slots,
+        entries: sanitizeEntries(entries)
+      };
+    }
+    return out;
+  }
+
+  function makeEmptyEntries(){
+    const d = [];
+    for (let day=0; day<DAYS.length; day++){
+      const cArr = [];
+      for (let c=0; c<COACHES.length; c++){
+        const sArr = [];
+        for (let s=0; s<DEFAULT_SLOTS.length; s++){
+          sArr.push([]);
+        }
+        cArr.push(sArr);
+      }
+      d.push(cArr);
+    }
+    return d;
+  }
+
+  function sanitizeEntries(entries){
+    const out = makeEmptyEntries();
+    for (let day=0; day<DAYS.length; day++){
+      for (let c=0; c<COACHES.length; c++){
+        for (let s=0; s<DEFAULT_SLOTS.length; s++){
+          const arr = entries?.[day]?.[c]?.[s];
+          if (Array.isArray(arr)){
+            out[day][c][s] = arr
+              .filter(x => typeof x === "string")
+              .map(prettifyName)
+              .slice(0,3);
           }
         }
-
-        lines.push(`${c.name}: ${entries} bejegyzés · ${unique.size} egyedi gyerek`);
-        lines.push(`  Napi bontás: ${DAYS.map(d=>`${d.label.slice(0,3)} ${byDay[d.id]}`).join(" | ")}`);
-        const kidsList = Array.from(unique.values()).sort((a,b)=>a.localeCompare(b,"hu"));
-        lines.push(`  Gyerekek: ${kidsList.length ? kidsList.join(", ") : "—"}`);
-        lines.push("");
       }
-
-      // conflicts
-      const conflictInfo = computeConflicts();
-      const conflictKeys = Object.keys(conflictInfo.details);
-      if (conflictKeys.length){
-        lines.push("ÜTKÖZÉSEK:");
-        conflictKeys.forEach(slotKey=>{
-          const [dayId, slotStr] = slotKey.split("|");
-          const dayLabel = DAYS.find(d=>d.id===dayId)?.label || dayId;
-          const slotLabel = TIME_SLOTS[parseInt(slotStr,10)] || slotStr;
-          lines.push(`- ${dayLabel} / ${slotLabel}`);
-          const kidMap = conflictInfo.details[slotKey];
-          Object.keys(kidMap).forEach(kidLower=>{
-            const occ = kidMap[kidLower];
-            const who = occ.map(x=>{
-              const coachName = COACHES.find(c=>c.id===x.coachId)?.name || x.coachId;
-              return coachName;
-            }).join(", ");
-            lines.push(`  • ${occ[0].kid} -> ${who}`);
-          });
-        });
-      } else {
-        lines.push("ÜTKÖZÉSEK: nincs");
-      }
-
-      return lines.join("\n");
     }
+    return out;
+  }
 
-    /***********************
-     *  EDIT MODAL
-     ***********************/
-    function openEdit(dayId, slotIndex, coachId){
-      editCtx = { dayId, slotIndex, coachId };
-
-      const dIdx = DAYS.findIndex(d=>d.id===dayId);
-      const date = addDays(currentWeekStart, dIdx);
-      const dayLabel = DAYS.find(d=>d.id===dayId)?.label || dayId;
-      const coachName = COACHES.find(c=>c.id===coachId)?.name || coachId;
-
-      const kids = (weekData.data?.[dayId]?.[slotIndex]?.[coachId]) || [];
-
-      els.editTitle.textContent = `Szerkesztés: ${coachName}`;
-      els.editMeta.textContent = `${dayLabel} · ${formatHU(date)} · ${TIME_SLOTS[slotIndex]}`;
-
-      els.kidsInput.value = kids.join("\n");
-      els.conflictHint.style.display = "none";
-
-      els.editOverlay.classList.add("show");
-      setTimeout(()=>els.kidsInput.focus(), 40);
-
-      // show conflict hint if needed (based on current list)
-      refreshEditConflictHint();
-    }
-
-    function closeEdit(){
-      els.editOverlay.classList.remove("show");
-      editCtx = null;
-    }
-
-    function refreshEditConflictHint(){
-      if (!editCtx) return;
-
-      const proposed = normalizeKidsText(els.kidsInput.value);
-      // Temporarily check conflicts if this cell would be set to proposed
-      const original = (weekData.data?.[editCtx.dayId]?.[editCtx.slotIndex]?.[editCtx.coachId]) || [];
-      weekData.data[editCtx.dayId][editCtx.slotIndex][editCtx.coachId] = proposed;
-
-      const conflictInfo = computeConflicts();
-      const key = `${editCtx.dayId}|${editCtx.slotIndex}|${editCtx.coachId}`;
-      const has = conflictInfo.conflicts.has(key);
-
-      // revert
-      weekData.data[editCtx.dayId][editCtx.slotIndex][editCtx.coachId] = original;
-
-      els.conflictHint.style.display = has ? "block" : "none";
-    }
-
-    function saveEdit(){
-      if (!editCtx || readOnly) return;
-
-      const kids = normalizeKidsText(els.kidsInput.value);
-
-      weekData.data[editCtx.dayId][editCtx.slotIndex][editCtx.coachId] = kids;
-      saveWeekToStorage();
-      renderAll();
-      closeEdit();
-      toast("Mentve");
-    }
-
-    function clearCell(){
-      if (!editCtx || readOnly) return;
-      els.kidsInput.value = "";
-      refreshEditConflictHint();
-      toast("Törölve (még nincs mentve)");
-    }
-
-    /***********************
-     *  SUMMARY MODAL
-     ***********************/
-    function openSummary(){
-      renderSummaryModal();
-      els.summaryOverlay.classList.add("show");
-    }
-    function closeSummary(){
-      els.summaryOverlay.classList.remove("show");
-    }
-
-    /***********************
-     *  SHARE MODAL
-     ***********************/
-    function openShare(){
-      // Create share payload from current weekData
-      const payload = {
-        weekStartISO: toISODate(currentWeekStart),
-        data: weekData.data
+  function ensureWeek(weekKey){
+    if (!state.db.weeks) state.db.weeks = {};
+    if (!state.db.weeks[weekKey]){
+      state.db.weeks[weekKey] = {
+        weekStart: weekKey,
+        slots: DEFAULT_SLOTS.slice(),
+        entries: makeEmptyEntries()
       };
-      const encoded = b64encodeUnicode(payload);
-
-      const base = location.href.split("#")[0];
-      const link = `${base}#view=${encoded}`;
-      els.shareLink.value = link;
-
-      els.shareOverlay.classList.add("show");
-      setTimeout(()=>els.shareLink.select(), 40);
+      if (!state.viewOnly) saveDB(state.db);
     }
-    function closeShare(){
-      els.shareOverlay.classList.remove("show");
-    }
+    return state.db.weeks[weekKey];
+  }
 
-    /***********************
-     *  EXPORT / IMPORT
-     ***********************/
-    function doExport(){
-      const payload = {
-        app: "DAK Edzői nyilvántartás",
-        exportedAt: new Date().toISOString(),
-        weekStartISO: toISODate(currentWeekStart),
-        data: weekData.data
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `dak_beosztas_${payload.weekStartISO}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      toast("Export kész");
-    }
-
-    async function doImportFromFile(file){
-      if (readOnly) return;
-
-      const text = await file.text();
-      const parsed = safeJsonParse(text);
-
-      if (!parsed || !parsed.weekStartISO || !parsed.data){
-        toast("Import hiba: rossz fájl");
-        return;
-      }
-
-      // import week specified by file into current week
-      currentWeekStart = getMonday(new Date(parsed.weekStartISO));
-      weekData = {
-        weekStartISO: toISODate(currentWeekStart),
-        data: parsed.data
-      };
-
-      saveWeekToStorage();
-      renderAll();
-      toast("Import kész");
-    }
-
-    /***********************
-     *  RENDER ALL
-     ***********************/
-    function renderAll(){
-      renderTable();
-      applyConflictUI();
-      renderSidePanel();
-    }
-
-    /***********************
-     *  NAV
-     ***********************/
-    function gotoWeek(startDate){
-      currentWeekStart = getMonday(startDate);
-
-      if (!readOnly){
-        loadWeekFromStorage();
-      } else {
-        // read-only share view: week already inside weekData
-        weekData.weekStartISO = toISODate(currentWeekStart);
-      }
-
-      renderAll();
-    }
-
-    /***********************
-     *  EVENTS
-     ***********************/
-    els.prevWeekBtn.addEventListener("click", ()=>{
-      const d = addDays(currentWeekStart, -7);
-      setReadOnlyMode(false); // navigating normally should exit read-only (if user wants)
-      history.replaceState(null, "", location.href.split("#")[0]); // remove share hash
-      loadWeekFromStorage(); // ensure normal mode
-      gotoWeek(d);
-      toast("Előző hét");
-    });
-
-    els.nextWeekBtn.addEventListener("click", ()=>{
-      const d = addDays(currentWeekStart, 7);
-      setReadOnlyMode(false);
-      history.replaceState(null, "", location.href.split("#")[0]);
-      loadWeekFromStorage();
-      gotoWeek(d);
-      toast("Következő hét");
-    });
-
-    els.todayBtn.addEventListener("click", ()=>{
-      setReadOnlyMode(false);
-      history.replaceState(null, "", location.href.split("#")[0]);
-      loadWeekFromStorage();
-      gotoWeek(new Date());
-      toast("Aktuális hét");
-    });
-
-    els.clearWeekBtn.addEventListener("click", ()=>{
-      if (readOnly) return;
-      if (!confirm("Biztos törlöd ENNEK a hétnek az adatait?")) return;
-      clearWeekStorage();
-    });
-
-    els.exportBtn.addEventListener("click", doExport);
-
-    els.importBtn.addEventListener("click", ()=>{
-      if (readOnly) return;
-      els.fileInput.value = "";
-      els.fileInput.click();
-    });
-
-    els.fileInput.addEventListener("change", (e)=>{
-      const file = e.target.files?.[0];
-      if (file) doImportFromFile(file);
-    });
-
-    els.shareBtn.addEventListener("click", openShare);
-
-    els.copyWeekKeyBtn.addEventListener("click", async ()=>{
-      const weekISO = toISODate(currentWeekStart);
-      const key = getWeekKey(weekISO);
-      try{
-        await navigator.clipboard.writeText(key);
-        toast("Kulcs másolva");
-      }catch{
-        toast("Nem sikerült másolni");
-      }
-    });
-
-    // Edit modal buttons
-    els.closeEditBtn.addEventListener("click", closeEdit);
-    els.cancelEditBtn.addEventListener("click", closeEdit);
-    els.saveEditBtn.addEventListener("click", saveEdit);
-    els.clearCellBtn.addEventListener("click", clearCell);
-    els.kidsInput.addEventListener("input", refreshEditConflictHint);
-
-    els.editOverlay.addEventListener("click", (e)=>{
-      if (e.target === els.editOverlay) closeEdit();
-    });
-
-    // Summary modal
-    els.summaryBtn.addEventListener("click", ()=>{
-      openSummary();
-    });
-    els.closeSummaryBtn.addEventListener("click", closeSummary);
-    els.closeSummaryBtn2.addEventListener("click", closeSummary);
-    els.summaryOverlay.addEventListener("click", (e)=>{
-      if (e.target === els.summaryOverlay) closeSummary();
-    });
-    els.copySummaryBtn.addEventListener("click", async ()=>{
-      const txt = getSummaryTextForClipboard();
-      try{
-        await navigator.clipboard.writeText(txt);
-        toast("Összesítő másolva");
-      }catch{
-        toast("Nem sikerült másolni");
-      }
-    });
-
-    // Share modal
-    els.closeShareBtn.addEventListener("click", closeShare);
-    els.closeShareBtn2.addEventListener("click", closeShare);
-    els.shareOverlay.addEventListener("click", (e)=>{
-      if (e.target === els.shareOverlay) closeShare();
-    });
-    els.copyShareBtn.addEventListener("click", async ()=>{
-      try{
-        await navigator.clipboard.writeText(els.shareLink.value);
-        toast("Link másolva");
-      }catch{
-        toast("Nem sikerült másolni");
-      }
-    });
-    els.openShareBtn.addEventListener("click", ()=>{
-      window.open(els.shareLink.value, "_blank");
-    });
-
-    // Keyboard
-    window.addEventListener("keydown", (e)=>{
-      if (e.key === "Escape"){
-        if (els.editOverlay.classList.contains("show")) closeEdit();
-        if (els.summaryOverlay.classList.contains("show")) closeSummary();
-        if (els.shareOverlay.classList.contains("show")) closeShare();
-      }
-      // Ctrl+S quick save in modal
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s"){
-        if (els.editOverlay.classList.contains("show")){
-          e.preventDefault();
-          saveEdit();
+  function weekHasAnyData(weekObj){
+    const e = weekObj?.entries;
+    if (!Array.isArray(e)) return false;
+    for (let d=0; d<e.length; d++){
+      for (let c=0; c<(e[d]||[]).length; c++){
+        for (let s=0; s<((e[d][c]||[]).length); s++){
+          const arr = e[d][c][s];
+          if (Array.isArray(arr) && arr.length) return true;
         }
       }
-    });
+    }
+    return false;
+  }
 
-    /***********************
-     *  INIT
-     ***********************/
-    (function init(){
-      // 1) if shared view in hash -> load it and set readOnly
-      const shared = tryLoadSharedView();
-      if (shared){
-        setReadOnlyMode(true);
-        renderAll();
-        toast("Read-only nézet");
-        return;
+  function getCellNames(weekObj, dayIdx, coachIdx, slotIdx){
+    const arr = weekObj.entries?.[dayIdx]?.[coachIdx]?.[slotIdx];
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function setCellNames(wk, dayIdx, coachIdx, slotIdx, names){
+    const weekObj = ensureWeek(wk);
+    if (!Array.isArray(weekObj.entries?.[dayIdx]?.[coachIdx])) return;
+    weekObj.entries[dayIdx][coachIdx][slotIdx] = (names || []).slice(0,3).map(prettifyName);
+    if (!state.viewOnly) saveDB(state.db);
+  }
+
+  function removeName(wk, dayIdx, coachIdx, slotIdx, name){
+    const weekObj = ensureWeek(wk);
+    const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
+    const next = names.filter(n => normName(n) !== normName(name));
+    setCellNames(wk, dayIdx, coachIdx, slotIdx, next);
+    if (state.sel && state.sel.wk === wk && state.sel.dayIdx === dayIdx && state.sel.coachIdx === coachIdx && state.sel.slotIdx === slotIdx){
+      openModal(state.sel);
+    }
+    render();
+  }
+
+  function upsertNameBank(name){
+    if (state.viewOnly) return;
+    const n = prettifyName(name);
+    const bank = state.db.nameBank || [];
+    const idx = bank.findIndex(x => normName(x) === normName(n));
+    if (idx >= 0) bank.splice(idx,1);
+    bank.push(n);
+    state.db.nameBank = bank.slice(-200);
+    saveDB(state.db);
+  }
+
+  function computeConflicts(weekObj, slots){
+    const conf = Array.from({length:DAYS.length}, () => Array.from({length:slots.length}, () => ({})));
+    for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
+      for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
+        const counts = new Map();
+        for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
+          const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
+          for (const n of names){
+            const key = normName(n);
+            counts.set(key, (counts.get(key)||0) + 1);
+          }
+        }
+        for (const [k,v] of counts.entries()){
+          if (v > 1) conf[dayIdx][slotIdx][k] = true;
+        }
       }
+    }
+    return conf;
+  }
 
-      // 2) normal mode: load current week from storage
-      setReadOnlyMode(false);
-      loadWeekFromStorage();
-      renderAll();
-    })();
-  </script>
+  function setWeek(date){
+    state.currentWeekStart = mondayOf(date);
+    render();
+  }
+  function shiftWeek(days){
+    const d = new Date(state.currentWeekStart);
+    d.setDate(d.getDate() + days);
+    setWeek(d);
+  }
+
+  function setWeekReadOnly(date){
+    const wk = getWeekKey(mondayOf(date));
+    if (!state.db.weeks[wk]){
+      alert("Néző módban csak a megosztott hét érhető el.");
+      return;
+    }
+    state.currentWeekStart = new Date(wk + "T00:00:00");
+    render();
+  }
+  function shiftWeekReadOnly(days){
+    const d = new Date(state.currentWeekStart);
+    d.setDate(d.getDate() + days);
+    setWeekReadOnly(d);
+  }
+
+  function encodeSharedData(obj){
+    const json = JSON.stringify(obj);
+    const b64 = btoa(unescape(encodeURIComponent(json)))
+      .replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
+    return encodeURIComponent(b64);
+  }
+  function decodeSharedData(encoded){
+    const b64url = decodeURIComponent(encoded);
+    const b64 = b64url.replaceAll("-","+").replaceAll("_","/") + "===".slice((b64url.length + 3) % 4);
+    const json = decodeURIComponent(escape(atob(b64)));
+    return JSON.parse(json);
+  }
+  function parseHash(){
+    const h = (location.hash || "").replace(/^#/, "");
+    const params = new URLSearchParams(h.replace(/^view\b/, "view=1"));
+    const viewOnly = params.get("view") === "1";
+    const data = params.get("data");
+    return { viewOnly, data };
+  }
+
+  function disableEditorUI(){
+    exportBtn.disabled = true;
+    resetWeekBtn.disabled = true;
+    copyPrevWeekBtn.disabled = true;
+    document.querySelector("label[for='importFile']").style.opacity = .5;
+    document.querySelector("label[for='importFile']").style.pointerEvents = "none";
+    shareLinkBtn.textContent = "Megosztott nézet";
+    shareLinkBtn.disabled = true;
+  }
+
+  function mondayOf(date){
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+    const day = (d.getDay() + 6) % 7;
+    d.setDate(d.getDate() - day);
+    return d;
+  }
+  function getWeekKey(date){
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${dd}`;
+  }
+  function fmtDate(date){
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${y}.${m}.${dd}`;
+  }
+  function todayISO(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${dd}`;
+  }
+  function normName(s){
+    return (s||"").toString().trim().toLowerCase();
+  }
+  function prettifyName(s){
+    return (s||"").toString().trim().replace(/\s+/g, " ");
+  }
+  function escapeHtml(s){
+    return (s||"").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;");
+  }
+  function deepClone(x){
+    try { return JSON.parse(JSON.stringify(x)); }
+    catch { return x; }
+  }
+})();
+</script>
 </body>
 </html>

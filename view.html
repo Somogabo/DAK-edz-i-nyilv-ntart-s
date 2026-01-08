@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DAK Edzői nyilvántartás — Szülői nézet</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --text:#e8eefc;
+      --muted:#9db0d3;
+      --accent:#18d6a1;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius2:22px;
+      --warn:#ffcc66;
+      --line: rgba(255,255,255,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 800px at 10% 0%, rgba(124,92,255,.22), transparent 55%),
+                  radial-gradient(1100px 800px at 90% 10%, rgba(24,214,161,.18), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      padding:12px;
+    }
+    .top{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    .title{
+      display:flex; gap:10px; align-items:center;
+      padding:12px 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      min-width:280px;
+    }
+    .dot{width:12px;height:12px;border-radius:999px;background: var(--accent); box-shadow: 0 0 0 4px rgba(24,214,161,.15)}
+    h1{margin:0;font-size:16px}
+    .sub{color:var(--muted);font-size:12px;margin-top:2px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      appearance:none;border:1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      color:var(--text);
+      padding:9px 12px;border-radius:14px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .btn:hover{border-color: rgba(24,214,161,.35)}
+    .input{
+      flex:1;
+      background: rgba(10,15,30,.55);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      padding:9px 12px;border-radius:14px;
+      outline:none;
+      min-width: 220px;
+    }
+    .badge{
+      font-size:11px; padding:4px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(24,214,161,.10);
+      color: var(--text);
+    }
+    .hint{color:var(--muted);font-size:12px;margin-top:10px}
+    .warn{color: var(--warn)}
+    .tableWrap{
+      margin-top:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    table{width:100%;border-collapse:separate;border-spacing:0;min-width:980px;}
+    thead th{position:sticky; top:0;background: rgba(17,26,46,.92);backdrop-filter: blur(8px);z-index:2;}
+    th, td{border-bottom:1px solid rgba(255,255,255,.06); border-right:1px solid rgba(255,255,255,.06); padding:10px; vertical-align:top;}
+    th:first-child, td:first-child{border-left:1px solid rgba(255,255,255,.06)}
+    thead tr:first-child th{border-top:1px solid rgba(255,255,255,.06)}
+    thead .coach{text-align:center;font-weight:700;color:var(--text);padding:12px 10px;}
+    thead .slot{text-align:center;font-weight:600;color:var(--muted);font-size:12px;padding:8px 10px;}
+    .dayCell{width:160px;background: rgba(10,15,30,.35);}
+    .dayName{font-weight:700;margin:0 0 4px 0;font-size:13px;}
+    .dateText{color:var(--muted); font-size:12px}
+    td{background: rgba(15,23,48,.40);}
+    .chips{display:flex; flex-wrap:wrap; gap:6px}
+    .chip{
+      background: rgba(27,39,80,.75);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--text);
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:12px;
+      display:inline-flex; gap:6px; align-items:center;
+      max-width:100%;
+    }
+    .results{
+      margin-top:10px; border-top:1px solid rgba(255,255,255,.06);
+      padding-top:10px; color: var(--muted); font-size:12px; display:none;
+    }
+    .results.show{display:block}
+    .resItem{
+      padding:6px 0; display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      border-bottom:1px dashed rgba(255,255,255,.06);
+    }
+    .resItem:last-child{border-bottom:none}
+    .tag{
+      font-size:11px; padding:3px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(24,214,161,.10);
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="title">
+      <div class="dot"></div>
+      <div>
+        <h1>DAK Edzői nyilvántartás</h1>
+        <div class="sub">Szülői nézet — csak olvasás</div>
+      </div>
+    </div>
+
+    <div class="panel" style="flex:1">
+      <div class="row" style="justify-content:space-between">
+        <div class="row">
+          <span class="badge" id="weekBadge">—</span>
+          <span class="sub" id="deployInfo">—</span>
+        </div>
+        <div class="row">
+          <button class="btn" id="prevBtn">← Előző</button>
+          <button class="btn" id="nextBtn">Következő →</button>
+          <button class="btn" id="reloadBtn">Frissítés</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <input class="input" id="searchInput" placeholder="Gyerek keresése (pl. Martin)" />
+        <button class="btn" id="clearSearchBtn">Törlés</button>
+      </div>
+
+      <div class="hint" id="hintLine">
+        Ha nem látszik friss adat: az edzőnek le kell töltenie a <b>public.json</b>-t az index oldalon, és feltölteni GitHubra.
+      </div>
+
+      <div class="results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <div class="tableWrap">
+    <table id="scheduleTable"></table>
+  </div>
+</div>
+
+<script>
+(() => {
+  // cache-bust: hogy mobilon/messengerben se ragadjon be régi public.json
+  const PUBLIC_URL = "public.json?v=" + Date.now();
+
+  const elTable = document.getElementById("scheduleTable");
+  const weekBadge = document.getElementById("weekBadge");
+  const deployInfo = document.getElementById("deployInfo");
+  const hintLine = document.getElementById("hintLine");
+
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const reloadBtn = document.getElementById("reloadBtn");
+
+  const searchInput = document.getElementById("searchInput");
+  const clearSearchBtn = document.getElementById("clearSearchBtn");
+  const searchResults = document.getElementById("searchResults");
+
+  let data = null;
+  let weekIndex = 0;
+  let search = "";
+
+  prevBtn.addEventListener("click", () => { if (!data) return; weekIndex = Math.max(0, weekIndex - 1); render(); });
+  nextBtn.addEventListener("click", () => { if (!data) return; weekIndex = Math.min(data.weekKeys.length - 1, weekIndex + 1); render(); });
+  reloadBtn.addEventListener("click", () => { location.reload(); });
+
+  searchInput.addEventListener("input", () => { search = (searchInput.value || "").trim().toLowerCase(); render(); });
+  clearSearchBtn.addEventListener("click", () => { searchInput.value=""; search=""; render(); });
+
+  init();
+
+  async function init(){
+    try{
+      const res = await fetch(PUBLIC_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("public.json not found");
+      data = await res.json();
+      if (!data || data.schema !== "dak-public-v1" || !data.weekKeys || !data.weeks) throw new Error("bad schema");
+
+      // legfrissebb hétre ugrunk (utolsó a sorted listában)
+      weekIndex = Math.max(0, data.weekKeys.length - 1);
+
+      deployInfo.textContent = data.generatedAt ? ("Publikálva: " + new Date(data.generatedAt).toLocaleString()) : "Publikálva: —";
+      hintLine.style.opacity = 0.9;
+
+      render();
+    } catch (e){
+      weekBadge.textContent = "Nincs publikus adat";
+      deployInfo.textContent = "";
+      hintLine.innerHTML = `<span class="warn">Nem található vagy hibás a public.json.</span> Kérd meg az edzőt, hogy az index oldalon kattintson a <b>Publikus frissítés</b> gombra, majd töltse fel a public.json-t a GitHub repóba.`;
+      renderEmpty();
+    }
+  }
+
+  function render(){
+    if (!data){ renderEmpty(); return; }
+    const wk = data.weekKeys[weekIndex];
+    const weekObj = data.weeks[wk];
+    const coaches = data.config?.coaches || ["Edző 1","Edző 2","Edző 3"];
+    const days = data.config?.days || ["Hétfő","Kedd","Szerda","Csütörtök","Péntek"];
+    const slots = weekObj?.slots || ["17:00","18:00"];
+
+    weekBadge.textContent = `Hét kezdete: ${wk}`;
+
+    const thead = buildThead(coaches, slots);
+    const tbody = buildTbody(weekObj, coaches, days, slots, wk);
+
+    elTable.innerHTML = "";
+    elTable.appendChild(thead);
+    elTable.appendChild(tbody);
+
+    renderSearch(weekObj, coaches, days, slots, wk);
+  }
+
+  function renderEmpty(){
+    elTable.innerHTML = "";
+  }
+
+  function buildThead(coaches, slots){
+    const thead = document.createElement("thead");
+    const tr1 = document.createElement("tr");
+    const th0 = document.createElement("th");
+    th0.textContent = "Dátum";
+    th0.className = "coach";
+    th0.style.textAlign = "left";
+    th0.style.width = "170px";
+    tr1.appendChild(th0);
+    for (const coach of coaches){
+      const th = document.createElement("th");
+      th.className = "coach";
+      th.colSpan = slots.length;
+      th.textContent = coach;
+      tr1.appendChild(th);
+    }
+    thead.appendChild(tr1);
+
+    const tr2 = document.createElement("tr");
+    const thDay = document.createElement("th");
+    thDay.className = "slot";
+    thDay.textContent = "";
+    tr2.appendChild(thDay);
+
+    for (let c=0; c<coaches.length; c++){
+      for (let s=0; s<slots.length; s++){
+        const th = document.createElement("th");
+        th.className = "slot";
+        th.textContent = slots[s];
+        tr2.appendChild(th);
+      }
+    }
+    thead.appendChild(tr2);
+    return thead;
+  }
+
+  function buildTbody(weekObj, coaches, days, slots, wk){
+    const tbody = document.createElement("tbody");
+    const monday = new Date(wk + "T00:00:00");
+
+    for (let dayIdx=0; dayIdx<days.length; dayIdx++){
+      const tr = document.createElement("tr");
+      const date = new Date(monday); date.setDate(date.getDate() + dayIdx);
+
+      const tdDay = document.createElement("td");
+      tdDay.className = "dayCell";
+      tdDay.innerHTML = `<div class="dayName">${days[dayIdx]}</div><div class="dateText">${fmtDate(date)}</div>`;
+      tr.appendChild(tdDay);
+
+      for (let coachIdx=0; coachIdx<coaches.length; coachIdx++){
+        for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
+          const td = document.createElement("td");
+          const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
+
+          // keresés kiemelés
+          if (search){
+            const match = names.some(n => (n||"").toLowerCase().includes(search));
+            if (match) td.style.boxShadow = "inset 0 0 0 2px rgba(24,214,161,.35)";
+          }
+
+          const chips = document.createElement("div");
+          chips.className = "chips";
+          for (const n of names){
+            const chip = document.createElement("div");
+            chip.className = "chip";
+            chip.textContent = n;
+            chips.appendChild(chip);
+          }
+          td.appendChild(chips);
+          tr.appendChild(td);
+        }
+      }
+
+      tbody.appendChild(tr);
+    }
+    return tbody;
+  }
+
+  function renderSearch(weekObj, coaches, days, slots, wk){
+    if (!search){
+      searchResults.classList.remove("show");
+      searchResults.innerHTML = "";
+      return;
+    }
+    const hits = [];
+    const monday = new Date(wk + "T00:00:00");
+    for (let dayIdx=0; dayIdx<days.length; dayIdx++){
+      for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
+        for (let coachIdx=0; coachIdx<coaches.length; coachIdx++){
+          const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
+          const matched = names.filter(n => (n||"").toLowerCase().includes(search));
+          if (matched.length) hits.push({dayIdx, slotIdx, coachIdx, names: matched});
+        }
+      }
+    }
+
+    if (!hits.length){
+      searchResults.classList.add("show");
+      searchResults.innerHTML = `<div class="sub">Nincs találat ezen a héten erre: <b style="color:var(--text)">${escapeHtml(searchInput.value)}</b></div>`;
+      return;
+    }
+
+    let html = `<div class="sub">Találatok (${hits.length}): <b style="color:var(--text)">${escapeHtml(searchInput.value)}</b></div>`;
+    for (const h of hits){
+      const date = new Date(monday); date.setDate(date.getDate() + h.dayIdx);
+      html += `
+        <div class="resItem">
+          <span class="tag">${days[h.dayIdx]} • ${fmtDate(date)} • ${slots[h.slotIdx]}</span>
+          <span><b style="color:var(--text)">${coaches[h.coachIdx]}</b> → ${h.names.map(escapeHtml).join(", ")}</span>
+        </div>
+      `;
+    }
+    searchResults.classList.add("show");
+    searchResults.innerHTML = html;
+  }
+
+  function getCellNames(weekObj, dayIdx, coachIdx, slotIdx){
+    const arr = weekObj?.entries?.[dayIdx]?.[coachIdx]?.[slotIdx];
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  function fmtDate(date){
+    const d = new Date(date);
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${y}.${m}.${dd}`;
+  }
+  function escapeHtml(s){
+    return (s||"").toString()
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;");
+  }
+})();
+</script>
+</body>
+</html>

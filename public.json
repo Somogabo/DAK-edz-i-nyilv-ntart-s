@@ -1,6 +1,6 @@
 {
   "schema": "dak-public-v1",
-  "generatedAt": "2026-01-08T14:14:08.951Z",
+  "generatedAt": "2026-01-08T15:23:06.345Z",
   "config": {
     "coaches": [
       "Bálint Zsolt",
@@ -29,44 +29,95 @@
       "entries": [
         [
           [
-            [],
-            []
+            [
+              "Zselyke",
+              "Soma",
+              "Olivér"
+            ],
+            [
+              "Olivér",
+              "Zselyke",
+              "Soma"
+            ]
           ],
           [
-            [],
-            []
+            [
+              "Ede",
+              "Dorci"
+            ],
+            [
+              "Ede",
+              "Dorci"
+            ]
           ],
           [
-            [],
-            []
+            [
+              "Ákos",
+              "Alizia"
+            ],
+            [
+              "Hanga"
+            ]
           ]
         ],
         [
           [
-            [],
-            []
+            [
+              "Zselyke",
+              "Soma"
+            ],
+            [
+              "Zselyke",
+              "Soma",
+              "Olivér"
+            ]
           ],
           [
-            [],
-            []
+            [
+              "Ede",
+              "Martin"
+            ],
+            [
+              "Martin",
+              "Dorci"
+            ]
           ],
           [
-            [],
-            []
+            [
+              "Olivér"
+            ],
+            [
+              "Hanga"
+            ]
           ]
         ],
         [
           [
-            [],
-            []
+            [
+              "Zselyke"
+            ],
+            [
+              "Zselyke",
+              "Soma"
+            ]
           ],
           [
-            [],
-            []
+            [
+              "Ede",
+              "Martin"
+            ],
+            [
+              "Martin",
+              "Dorci"
+            ]
           ],
           [
-            [],
-            []
+            [
+              "Soma"
+            ],
+            [
+              "Ádám"
+            ]
           ]
         ],
         [
@@ -100,5 +151,16 @@
       ]
     }
   },
-  "nameBank": []
+  "nameBank": [
+    "Ákos",
+    "Alizia",
+    "Hanga",
+    "Olivér",
+    "Zselyke",
+    "Ede",
+    "Martin",
+    "Dorci",
+    "Soma",
+    "Ádám"
+  ]
 }

@@ -537,7 +537,8 @@
     search: ""
   };
 
-  const urlInfo = parseHash();
+  // ÚJ: query param olvasás, DE a régi #hash is támogatott (visszafelé kompatibilis)
+  const urlInfo = parseViewParams();
   if (urlInfo.viewOnly && urlInfo.data) {
     try {
       state.viewOnly = true;
@@ -637,6 +638,7 @@
 
   printBtn.addEventListener("click", () => window.print());
 
+  // ✅ ÚJ: megosztás query parammal (?view=1&data=...)
   shareLinkBtn.addEventListener("click", async () => {
     const wk = getWeekKey(state.currentWeekStart);
     const weekObj = ensureWeek(wk);
@@ -647,7 +649,10 @@
       nameBank: state.db.nameBank || []
     };
     const encoded = encodeSharedData(sharedObj);
-    const url = `${location.origin}${location.pathname}#view=1&data=${encoded}`;
+
+    // Tiszta URL: ugyanaz az oldal, csak query paramokkal.
+    const base = `${location.origin}${location.pathname}`;
+    const url = `${base}?view=1&data=${encoded}`;
 
     try {
       await navigator.clipboard.writeText(url);
@@ -1276,11 +1281,21 @@
     const json = decodeURIComponent(escape(atob(b64)));
     return JSON.parse(json);
   }
-  function parseHash(){
-    const h = (location.hash || "").replace(/^#/, "");
-    const params = new URLSearchParams(h.replace(/^view\b/, "view=1"));
-    const viewOnly = params.get("view") === "1";
-    const data = params.get("data");
+
+  // ✅ ÚJ: ?view=1&data=... olvasás + régi #view=1&data=... fallback
+  function parseViewParams(){
+    // 1) Query string
+    const qs = new URLSearchParams(location.search || "");
+    let viewOnly = qs.get("view") === "1";
+    let data = qs.get("data");
+
+    // 2) Fallback a régi hash formára, ha query-ben nincs
+    if ((!viewOnly || !data) && location.hash) {
+      const h = (location.hash || "").replace(/^#/, "");
+      const hs = new URLSearchParams(h.replace(/^view\b/, "view=1"));
+      if (!viewOnly) viewOnly = hs.get("view") === "1";
+      if (!data) data = hs.get("data");
+    }
     return { viewOnly, data };
   }
 
@@ -1288,8 +1303,11 @@
     exportBtn.disabled = true;
     resetWeekBtn.disabled = true;
     copyPrevWeekBtn.disabled = true;
-    document.querySelector("label[for='importFile']").style.opacity = .5;
-    document.querySelector("label[for='importFile']").style.pointerEvents = "none";
+    const lbl = document.querySelector("label[for='importFile']");
+    if (lbl){
+      lbl.style.opacity = .5;
+      lbl.style.pointerEvents = "none";
+    }
     shareLinkBtn.textContent = "Megosztott nézet";
     shareLinkBtn.disabled = true;
   }

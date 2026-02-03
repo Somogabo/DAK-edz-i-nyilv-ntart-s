@@ -284,6 +284,7 @@
       <div class="row">
         <input class="input" id="searchInput" placeholder="Gyerek keresése (pl. Martin)" />
         <button class="btn" id="clearSearchBtn">Törlés</button>
+        <button class="btn" id="historyBtn" title="Gyerek történet több hétre">Történet</button>
       </div>
 
       <div class="row" style="justify-content:space-between">
@@ -311,7 +312,7 @@
         <div class="summaryTitle">Heti összesítő</div>
         <div class="summarySub" id="summarySub">—</div>
       </div>
-      <div class="summarySub">Max: <b>3 gyerek / cella</b></div>
+      <div class="summarySub">Max: <b>nincs korlát</b></div>
     </div>
     <div class="summaryGrid" id="summaryGrid"></div>
   </div>
@@ -319,7 +320,7 @@
   <div class="hint">
     <span>Tippek:</span>
     <span><kbd>Katt</kbd> a cellára → név hozzáadás/törlés</span>
-    <span>Max <b>3</b> gyerek / cella</span>
+    <span>Nincs létszámkorlát / cella</span>
     <span>Ütközés jelzés: ugyanaz a név ugyanabban az idősávban több edzőnél</span>
   </div>
 
@@ -342,7 +343,7 @@
         <input class="input" id="nameInput" placeholder="Írj be egy nevet, majd Enter" />
         <button class="btn primary" id="addNameBtn">Hozzáad</button>
       </div>
-      <div class="warnline" id="limitWarn">Elérted a maximumot (3 gyerek / cella).</div>
+      <div class="warnline" id="limitWarn">Elérted a maximumot.</div>
 
       <div class="divider"></div>
 
@@ -403,6 +404,30 @@
   </div>
 </div>
 
+
+<!-- Gyerek történet / több hét -->
+<div class="backdrop" id="historyBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" style="max-width:980px">
+    <div class="modalHeader">
+      <div>
+        <h2 id="historyTitle">Gyerek történet</h2>
+        <div class="meta" id="historyMeta">—</div>
+      </div>
+      <button class="btn" id="historyCloseBtn">Bezár</button>
+    </div>
+    <div class="modalBody">
+      <div class="row" style="gap:10px">
+        <input class="input" id="historyNameInput" placeholder="Írd be a gyerek nevét (pl. Martin)" />
+        <button class="btn primary" id="historyRunBtn">Keresés</button>
+        <button class="btn" id="historyClearBtn">Törlés</button>
+      </div>
+      <div class="divider"></div>
+      <div id="historyStats" class="small">—</div>
+      <div style="height:10px"></div>
+      <div id="historyWrap"></div>
+    </div>
+  </div>
+</div>
 <script>
 (() => {
   const COACHES = ["Bálint Zsolt", "Bakos Péter", "Somogyi Gábor"];
@@ -445,6 +470,7 @@
   const openViewBtn = document.getElementById("openViewBtn");
   const publishBtn = document.getElementById("publishBtn");
   const monthBtn = document.getElementById("monthBtn");
+  const historyBtn = document.getElementById("historyBtn");
   const printBtn = document.getElementById("printBtn");
   const exportBtn = document.getElementById("exportBtn");
   const importFile = document.getElementById("importFile");
@@ -457,6 +483,17 @@
   const monthRefreshBtn = document.getElementById("monthRefreshBtn");
   const monthInfo = document.getElementById("monthInfo");
   const monthTableWrap = document.getElementById("monthTableWrap");
+
+  const historyBackdrop = document.getElementById("historyBackdrop");
+  const historyCloseBtn = document.getElementById("historyCloseBtn");
+  const historyTitle = document.getElementById("historyTitle");
+  const historyMeta = document.getElementById("historyMeta");
+  const historyNameInput = document.getElementById("historyNameInput");
+  const historyRunBtn = document.getElementById("historyRunBtn");
+  const historyClearBtn = document.getElementById("historyClearBtn");
+  const historyStats = document.getElementById("historyStats");
+  const historyWrap = document.getElementById("historyWrap");
+  const historyStats = document.getElementById("historyStats");
   const closeModalBtn = document.getElementById("closeModalBtn");
   const doneBtn = document.getElementById("doneBtn");
   const modalTitle = document.getElementById("modalTitle");
@@ -507,7 +544,127 @@
   });
   monthCloseBtn.addEventListener("click", closeMonthModal);
   monthBackdrop.addEventListener("click", (e) => { if (e.target === monthBackdrop) closeMonthModal(); });
-  monthRefreshBtn.addEventListener("click", () => renderMonthlySummary(monthPicker.value));
+  monthRefreshBtn.addEventListener("click", () => renderMonthlySummary(monthPicker.value)
+  // Gyerek történet (több hétre)
+  historyBtn?.addEventListener("click", () => openHistoryModal(state.search || ""));
+  function openHistoryModal(prefill){
+    historyNameInput.value = (prefill || "").trim();
+    historyTitle.textContent = "Gyerek történet";
+    historyMeta.textContent = "Több hét / teljes adatbázis keresése";
+    historyBackdrop.classList.add("show");
+    historyBackdrop.setAttribute("aria-hidden","false");
+    setTimeout(()=>historyNameInput.focus(),0);
+    if (historyNameInput.value) renderHistory(historyNameInput.value);
+  }
+  function closeHistoryModal(){
+    historyBackdrop.classList.remove("show");
+    historyBackdrop.setAttribute("aria-hidden","true");
+  }
+  historyCloseBtn.addEventListener("click", closeHistoryModal);
+  historyBackdrop.addEventListener("click", (e) => { if (e.target === historyBackdrop) closeHistoryModal(); });
+
+  historyRunBtn.addEventListener("click", () => renderHistory(historyNameInput.value));
+  historyNameInput.addEventListener("keydown", (e)=>{ if(e.key==="Enter") renderHistory(historyNameInput.value); });
+  historyClearBtn.addEventListener("click", () => { historyNameInput.value=""; historyWrap.innerHTML=""; historyStats.textContent="—"; });
+
+  function renderHistory(nameRaw){
+    const name = (nameRaw||"").trim();
+    const q = normName(name);
+    if(!q){ historyStats.textContent="Írj be egy nevet."; historyWrap.innerHTML=""; return; }
+
+    const hits = [];
+    const perCoach = COACHES.map(()=>({cells:0, hours:0, days:new Set(), uniqueKids:new Set()}));
+
+    // weeks sorted
+    const weekKeys = Object.keys(state.db.weeks||{}).sort();
+    for (const wk of weekKeys){
+      const w = state.db.weeks[wk];
+      const slots = w.slots || DEFAULT_SLOTS;
+      const monday = new Date(wk + "T00:00:00");
+      for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
+        const d = new Date(monday); d.setDate(d.getDate()+dayIdx);
+        const dateISO = d.toISOString().slice(0,10);
+        for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
+          for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
+            const names = getCellNames(w, dayIdx, coachIdx, slotIdx);
+            if(!names.length) continue;
+            // track unique kids per coach
+            names.forEach(n=>perCoach[coachIdx].uniqueKids.add(prettifyName(n)));
+            const matched = names.filter(n => normName(n).includes(q));
+            if (matched.length){
+              hits.push({wk, dateISO, dayIdx, coachIdx, slot: slots[slotIdx], matched, all:names});
+              perCoach[coachIdx].cells += 1;
+              perCoach[coachIdx].hours += SLOT_DURATION_HOURS;
+              perCoach[coachIdx].days.add(dateISO);
+            }
+          }
+        }
+      }
+    }
+
+    hits.sort((a,b)=> a.dateISO.localeCompare(b.dateISO) || a.slot.localeCompare(b.slot) || a.coachIdx-b.coachIdx);
+
+    const totalHours = hits.length * SLOT_DURATION_HOURS;
+    const uniqWeeks = new Set(hits.map(h=>h.wk)).size;
+    const uniqDays = new Set(hits.map(h=>h.dateISO)).size;
+
+    historyStats.innerHTML = `
+      <b style="color:var(--text)">${escapeHtml(name)}</b> • találatok: <b style="color:var(--text)">${hits.length}</b>
+      • hetek: <b style="color:var(--text)">${uniqWeeks}</b>
+      • napok: <b style="color:var(--text)">${uniqDays}</b>
+      • össz óra (1 idősáv = ${SLOT_DURATION_HOURS} óra): <b style="color:var(--text)">${totalHours}</b>
+    `;
+
+    if(!hits.length){
+      historyWrap.innerHTML = `<div class="small">Nincs találat a teljes adatbázisban.</div>`;
+      return;
+    }
+
+    // per coach mini summary
+    let coachHtml = '<div class="small" style="margin:6px 0 10px">Edzőnként:</div><div class="summaryGrid">';
+    for (let i=0;i<COACHES.length;i++){
+      const pc=perCoach[i];
+      if(pc.cells===0) continue;
+      coachHtml += `
+        <div class="sumCard" style="min-width:220px">
+          <div class="sumName"><span>${COACHES[i]}</span><span class="sumTag">${pc.days.size} nap • ${pc.hours} óra</span></div>
+          <div class="sumMetrics">
+            <div class="metric"><div class="k">Előfordulás</div><div class="v">${pc.cells}</div><div class="s">cellában</div></div>
+            <div class="metric"><div class="k">Egyedi gyerekek</div><div class="v">${pc.uniqueKids.size}</div><div class="s">a hónapokban</div></div>
+            <div class="metric"><div class="k">Napok</div><div class="v">${pc.days.size}</div><div class="s">összes</div></div>
+          </div>
+        </div>`;
+    }
+    coachHtml += "</div>";
+
+    // results list
+    let list = '<div class="divider"></div><div class="small">Részletek (időrendben):</div>';
+    list += '<div style="margin-top:10px">';
+    for (const h of hits){
+      list += `
+        <div class="resItem" style="cursor:pointer" data-wk="${h.wk}">
+          <span class="tag">${h.dateISO} • ${DAYS[h.dayIdx].name} • ${h.slot}</span>
+          <span><b style="color:var(--text)">${COACHES[h.coachIdx]}</b> → ${h.all.map(escapeHtml).join(", ")}</span>
+        </div>`;
+    }
+    list += "</div>";
+
+    historyWrap.innerHTML = coachHtml + list;
+
+    // click → jump to week in editor
+    historyWrap.querySelectorAll(".resItem[data-wk]").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        const wk = el.getAttribute("data-wk");
+        if (wk){
+          state.currentWeekStart = new Date(wk + "T00:00:00");
+          state.search = name;
+          closeHistoryModal();
+          render();
+        }
+      });
+    });
+  }
+);
 
   exportBtn.addEventListener("click", () => {
     downloadJson(`dak_export_${todayISO()}.json`, state.db);
@@ -600,18 +757,19 @@
         }
       }
       const emptyCells = totalCellsPerCoach - filledCells;
-      const maxKids = totalCellsPerCoach * 3;
-      const loadPct = maxKids ? Math.round((kidCount / maxKids) * 100) : 0;
+      const hasLimit = MAX_PER_CELL < 99;
+      const maxKids = hasLimit ? (totalCellsPerCoach * MAX_PER_CELL) : null;
+      const loadPct = (hasLimit && maxKids) ? Math.round((kidCount / maxKids) * 100) : null;
 
       const card = document.createElement("div");
       card.className = "sumCard";
       card.innerHTML = `
         <div class="sumName">
           <span>${COACHES[coachIdx]}</span>
-          <span class="sumTag">${kidCount}/${maxKids} hely • ${loadPct}%</span>
+          <span class="sumTag">${hasLimit ? (kidCount + "/" + maxKids + " hely • " + loadPct + "%") : (kidCount + " gyerek" )}</span>
         </div>
         <div class="sumMetrics">
-          <div class="metric"><div class="k">Gyerekek összesen</div><div class="v">${kidCount}</div><div class="s">max: ${maxKids}</div></div>
+          <div class="metric"><div class="k">Gyerekek összesen</div><div class="v">${kidCount}</div><div class="s">${hasLimit ? ("max: "+maxKids) : "max: ∞"}</div></div>
           <div class="metric"><div class="k">Foglalt cellák</div><div class="v">${filledCells}</div><div class="s">max: ${totalCellsPerCoach}</div></div>
           <div class="metric"><div class="k">Üres cellák</div><div class="v">${emptyCells}</div><div class="s">max: ${totalCellsPerCoach}</div></div>
         </div>
@@ -704,7 +862,7 @@
 
           const footer = document.createElement("div");
           footer.className = "cellFooter";
-          footer.innerHTML = `<span>${names.length}/3</span>`;
+          footer.innerHTML = `<span>${names.length}/${MAX_PER_CELL>=99?"∞":MAX_PER_CELL}</span>`;
           const plus = document.createElement("span");
           plus.className = "plus";
           plus.textContent = "+";
@@ -770,7 +928,7 @@
     dayDate.setDate(dayDate.getDate() + sel.dayIdx);
 
     modalTitle.textContent = `${COACHES[sel.coachIdx]} — ${slots[sel.slotIdx]}`;
-    modalMeta.textContent = `${DAYS[sel.dayIdx].name}, ${fmtDate(dayDate)} • Max 3 gyerek`;
+    modalMeta.textContent = `${DAYS[sel.dayIdx].name}, ${fmtDate(dayDate)} • Max ${MAX_PER_CELL>=99?"∞":MAX_PER_CELL} gyerek`;
 
     const names = getCellNames(weekObj, sel.dayIdx, sel.coachIdx, sel.slotIdx);
     renderModalChips(names);
@@ -961,217 +1119,4 @@
     const weekObj = ensureWeek(wk);
     const names = getCellNames(weekObj, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx);
 
-    if (names.length >= MAX_PER_CELL){ limitWarn.classList.add("show"); return; }
-    if (names.some(n => normName(n) === normName(raw))){ nameInput.value = ""; return; }
-
-    const next = [...names, prettifyName(raw)].slice(0,MAX_PER_CELL);
-    setCellNames(wk, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx, next);
-    upsertNameBank(prettifyName(raw));
-
-    openModal(state.sel);
-    render();
-  }
-
-  // ===== Data layer =====
-  function loadDB(){
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { weeks: {}, nameBank: [] };
-    try{ return sanitizeDB(JSON.parse(raw)); } catch { return { weeks: {}, nameBank: [] }; }
-  }
-  function saveDB(db){ localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
-
-  function sanitizeDB(obj){
-    const out = { weeks: {}, nameBank: [] };
-    out.nameBank = Array.isArray(obj.nameBank) ? obj.nameBank.filter(s => typeof s === "string").map(prettifyName) : [];
-    const weeks = obj.weeks && typeof obj.weeks === "object" ? obj.weeks : {};
-    for (const [wk, w] of Object.entries(weeks)){
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(wk)) continue;
-      const slots = Array.isArray(w?.slots) ? w.slots.filter(s => typeof s === "string") : DEFAULT_SLOTS.slice();
-      const entries = Array.isArray(w?.entries) ? w.entries : makeEmptyEntries(slots.length);
-      out.weeks[wk] = { weekStart: wk, slots, entries: sanitizeEntries(entries, slots.length) };
-    }
-    return out;
-  }
-
-  function makeEmptyEntries(slotCount){
-    const d = [];
-    for (let day=0; day<DAYS.length; day++){
-      const cArr = [];
-      for (let c=0; c<COACHES.length; c++){
-        const sArr = [];
-        for (let s=0; s<slotCount; s++) sArr.push([]);
-        cArr.push(sArr);
-      }
-      d.push(cArr);
-    }
-    return d;
-  }
-
-  function sanitizeEntries(entries, slotCount){
-    const out = makeEmptyEntries(slotCount);
-    for (let day=0; day<DAYS.length; day++){
-      for (let c=0; c<COACHES.length; c++){
-        for (let s=0; s<slotCount; s++){
-          const arr = entries?.[day]?.[c]?.[s];
-          if (Array.isArray(arr)){
-            out[day][c][s] = arr.filter(x => typeof x === "string").map(prettifyName).slice(0,MAX_PER_CELL);
-          }
-        }
-      }
-    }
-    return out;
-  }
-
-  function ensureWeek(weekKey){
-    if (!state.db.weeks) state.db.weeks = {};
-    if (!state.db.weeks[weekKey]){
-      state.db.weeks[weekKey] = { weekStart: weekKey, slots: DEFAULT_SLOTS.slice(), entries: makeEmptyEntries(DEFAULT_SLOTS.length) };
-      saveDB(state.db);
-    } else {
-      // ha valamiért slots hossza változott, igazítsuk az entries-t
-      const w = state.db.weeks[weekKey];
-      const slots = w.slots || DEFAULT_SLOTS;
-      w.entries = sanitizeEntries(w.entries, slots.length);
-      w.slots = slots;
-    }
-    return state.db.weeks[weekKey];
-  }
-
-  function weekHasAnyData(weekObj){
-    const e = weekObj?.entries;
-    if (!Array.isArray(e)) return false;
-    for (let d=0; d<e.length; d++){
-      for (let c=0; c<(e[d]||[]).length; c++){
-        for (let s=0; s<((e[d][c]||[]).length); s++){
-          const arr = e[d][c][s];
-          if (Array.isArray(arr) && arr.length) return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  function getCellNames(weekObj, dayIdx, coachIdx, slotIdx){
-    const arr = weekObj.entries?.[dayIdx]?.[coachIdx]?.[slotIdx];
-    return Array.isArray(arr) ? arr : [];
-  }
-
-  function setCellNames(wk, dayIdx, coachIdx, slotIdx, names){
-    const weekObj = ensureWeek(wk);
-    weekObj.entries[dayIdx][coachIdx][slotIdx] = (names || []).slice(0,MAX_PER_CELL).map(prettifyName);
-    saveDB(state.db);
-  }
-
-  function removeName(wk, dayIdx, coachIdx, slotIdx, name){
-    const weekObj = ensureWeek(wk);
-    const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
-    const next = names.filter(n => normName(n) !== normName(name));
-    setCellNames(wk, dayIdx, coachIdx, slotIdx, next);
-    if (state.sel && state.sel.wk === wk && state.sel.dayIdx === dayIdx && state.sel.coachIdx === coachIdx && state.sel.slotIdx === slotIdx){
-      openModal(state.sel);
-    }
-    render();
-  }
-
-  function upsertNameBank(name){
-    const n = prettifyName(name);
-    const bank = state.db.nameBank || [];
-    const idx = bank.findIndex(x => normName(x) === normName(n));
-    if (idx >= 0) bank.splice(idx,1);
-    bank.push(n);
-    state.db.nameBank = bank.slice(-200);
-    saveDB(state.db);
-  }
-
-  function computeConflicts(weekObj, slots){
-    const conf = Array.from({length:DAYS.length}, () => Array.from({length:slots.length}, () => ({})));
-    for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
-      for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
-        const counts = new Map();
-        for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
-          const names = getCellNames(weekObj, dayIdx, coachIdx, slotIdx);
-          for (const n of names){
-            const key = normName(n);
-            counts.set(key, (counts.get(key)||0) + 1);
-          }
-        }
-        for (const [k,v] of counts.entries()){
-          if (v > 1) conf[dayIdx][slotIdx][k] = true;
-        }
-      }
-    }
-    return conf;
-  }
-
-  // ===== Public publish =====
-  function buildPublicPayload(){
-    // csak biztonságos dolgok: config + hetek
-    const clean = sanitizeDB(state.db);
-    const weekKeys = Object.keys(clean.weeks || {}).sort();
-    return {
-      schema: "dak-public-v1",
-      generatedAt: new Date().toISOString(),
-      config: { coaches: COACHES, days: DAYS.map(d=>d.name), maxPerCell: MAX_PER_CELL },
-      weekKeys,
-      weeks: clean.weeks,
-      nameBank: clean.nameBank
-    };
-  }
-
-  function downloadJson(filename, obj){
-    const blob = new Blob([JSON.stringify(obj, null, 2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  // ===== Date helpers =====
-  function setWeek(date){ state.currentWeekStart = mondayOf(date); render(); }
-  function shiftWeek(days){ const d = new Date(state.currentWeekStart); d.setDate(d.getDate() + days); setWeek(d); }
-
-  function mondayOf(date){
-    const d = new Date(date);
-    d.setHours(0,0,0,0);
-    const day = (d.getDay() + 6) % 7; // Mon=0
-    d.setDate(d.getDate() - day);
-    return d;
-  }
-  function getWeekKey(date){
-    const d = new Date(date);
-    d.setHours(0,0,0,0);
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${dd}`;
-  }
-  function fmtDate(date){
-    const d = new Date(date);
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${y}.${m}.${dd}`;
-  }
-  function todayISO(){
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${y}-${m}-${dd}`;
-  }
-  function normName(s){ return (s||"").toString().trim().toLowerCase(); }
-  function prettifyName(s){ return (s||"").toString().trim().replace(/\s+/g, " "); }
-  function escapeHtml(s){
-    return (s||"").toString()
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;");
-  }
-  function deepClone(x){ try { return JSON.parse(JSON.stringify(x)); } catch { return x; } }
-})();
-</script>
-</body>
-</html>
-
+    if (names.length >= MAX_PER_CELL){ limitWarn.cla

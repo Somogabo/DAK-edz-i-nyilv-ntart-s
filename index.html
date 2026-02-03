@@ -222,8 +222,6 @@
       color: var(--text); font-size:12px;
     }
     .pill:hover{border-color: rgba(124,92,255,.55); background: rgba(124,92,255,.10)}
-    .warnline{display:none;color: var(--warn);font-size:12px;margin-top:8px;}
-    .warnline.show{display:block}
 
     .results{
       margin-top:10px; border-top:1px solid rgba(255,255,255,.06);
@@ -310,7 +308,7 @@
         <div class="summaryTitle">Heti összesítő</div>
         <div class="summarySub" id="summarySub">—</div>
       </div>
-      <div class="summarySub">Max: <b>3 gyerek / cella</b></div>
+      <div class="summarySub">Max: <b>nincs korlát</b></div>
     </div>
     <div class="summaryGrid" id="summaryGrid"></div>
   </div>
@@ -318,7 +316,7 @@
   <div class="hint">
     <span>Tippek:</span>
     <span><kbd>Katt</kbd> a cellára → név hozzáadás/törlés</span>
-    <span>Max <b>3</b> gyerek / cella</span>
+    <span>Max <b>nincs korlát</b> / cella</span>
     <span>Ütközés jelzés: ugyanaz a név ugyanabban az idősávban több edzőnél</span>
   </div>
 
@@ -341,7 +339,6 @@
         <input class="input" id="nameInput" placeholder="Írj be egy nevet, majd Enter" />
         <button class="btn primary" id="addNameBtn">Hozzáad</button>
       </div>
-      <div class="warnline" id="limitWarn">Elérted a maximumot (3 gyerek / cella).</div>
 
       <div class="divider"></div>
 
@@ -374,6 +371,11 @@
     { name: "Csütörtök" },
     { name: "Péntek" }
   ];
+
+  // ✅ KORLÁT KIKAPCSOLVA:
+  // Ha később mégis szeretnél limitet, ide írj pl. 4-et, 5-öt, stb.
+  const MAX_PER_CELL = Infinity;
+
   const STORAGE_KEY = "dak_schedule_v2";
 
   let state = {
@@ -416,7 +418,6 @@
   const addNameBtn = document.getElementById("addNameBtn");
   const modalChips = document.getElementById("modalChips");
   const suggestions = document.getElementById("suggestions");
-  const limitWarn = document.getElementById("limitWarn");
   const clearCellBtn = document.getElementById("clearCellBtn");
   const conflictHint = document.getElementById("conflictHint");
 
@@ -446,7 +447,6 @@
   printBtn.addEventListener("click", () => window.print());
 
   publishBtn.addEventListener("click", () => {
-    // Publikus csomag: minden hét + config (szülők nézethez)
     const payload = buildPublicPayload();
     downloadJson("public.json", payload);
     alert("Letöltöttem a public.json fájlt ✅\n\nKövetkező lépés:\nGitHub → Upload files → töltsd fel a public.json-t a repó gyökerébe, és Commit.\n\nA szülők ezután a view.html linken a friss adatot látják.");
@@ -514,7 +514,6 @@
     const weekObj = ensureWeek(wk);
     const slots = weekObj.slots || DEFAULT_SLOTS;
 
-    // Szülői nézet nyitása: mindig ugyanaz a link, nincs adat URL-ben
     openViewBtn.href = `view.html`;
 
     renderSummary(weekObj, slots);
@@ -534,27 +533,31 @@
     const totalCellsPerCoach = DAYS.length * slots.length;
     summarySub.textContent = `Hét összes cellája edzőnként: ${totalCellsPerCoach} (napok: ${DAYS.length}, idősávok: ${slots.length})`;
     summaryGrid.innerHTML = "";
+
     for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
       let kidCount = 0, filledCells = 0;
+
       for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
         for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
           const arr = weekObj.entries?.[dayIdx]?.[coachIdx]?.[slotIdx];
           if (Array.isArray(arr) && arr.length){ filledCells++; kidCount += arr.length; }
         }
       }
+
       const emptyCells = totalCellsPerCoach - filledCells;
-      const maxKids = totalCellsPerCoach * 3;
-      const loadPct = maxKids ? Math.round((kidCount / maxKids) * 100) : 0;
+
+      // ✅ korlát nélkül nincs "max gyerek"; inkább cella-kihasználtságot számolunk
+      const loadPct = totalCellsPerCoach ? Math.round((filledCells / totalCellsPerCoach) * 100) : 0;
 
       const card = document.createElement("div");
       card.className = "sumCard";
       card.innerHTML = `
         <div class="sumName">
           <span>${COACHES[coachIdx]}</span>
-          <span class="sumTag">${kidCount}/${maxKids} hely • ${loadPct}%</span>
+          <span class="sumTag">${filledCells}/${totalCellsPerCoach} cella • ${loadPct}%</span>
         </div>
         <div class="sumMetrics">
-          <div class="metric"><div class="k">Gyerekek összesen</div><div class="v">${kidCount}</div><div class="s">max: ${maxKids}</div></div>
+          <div class="metric"><div class="k">Gyerekek összesen</div><div class="v">${kidCount}</div><div class="s">—</div></div>
           <div class="metric"><div class="k">Foglalt cellák</div><div class="v">${filledCells}</div><div class="s">max: ${totalCellsPerCoach}</div></div>
           <div class="metric"><div class="k">Üres cellák</div><div class="v">${emptyCells}</div><div class="s">max: ${totalCellsPerCoach}</div></div>
         </div>
@@ -647,7 +650,7 @@
 
           const footer = document.createElement("div");
           footer.className = "cellFooter";
-          footer.innerHTML = `<span>${names.length}/3</span>`;
+          footer.innerHTML = `<span>${names.length} fő</span>`;
           const plus = document.createElement("span");
           plus.className = "plus";
           plus.textContent = "+";
@@ -713,7 +716,7 @@
     dayDate.setDate(dayDate.getDate() + sel.dayIdx);
 
     modalTitle.textContent = `${COACHES[sel.coachIdx]} — ${slots[sel.slotIdx]}`;
-    modalMeta.textContent = `${DAYS[sel.dayIdx].name}, ${fmtDate(dayDate)} • Max 3 gyerek`;
+    modalMeta.textContent = `${DAYS[sel.dayIdx].name}, ${fmtDate(dayDate)} • Nincs korlát`;
 
     const names = getCellNames(weekObj, sel.dayIdx, sel.coachIdx, sel.slotIdx);
     renderModalChips(names);
@@ -725,7 +728,6 @@
       ? `Ütközés: ${conflictNames.join(", ")} ugyanebben az idősávban más edzőnél is szerepel.`
       : "Nincs ütközés ebben a cellában.";
 
-    limitWarn.classList.toggle("show", names.length >= 3);
     nameInput.value = "";
     modalBackdrop.classList.add("show");
     modalBackdrop.setAttribute("aria-hidden", "false");
@@ -799,10 +801,9 @@
     const weekObj = ensureWeek(wk);
     const names = getCellNames(weekObj, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx);
 
-    if (names.length >= 3){ limitWarn.classList.add("show"); return; }
     if (names.some(n => normName(n) === normName(raw))){ nameInput.value = ""; return; }
 
-    const next = [...names, prettifyName(raw)].slice(0,3);
+    const next = [...names, prettifyName(raw)];
     setCellNames(wk, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx, next);
     upsertNameBank(prettifyName(raw));
 
@@ -852,7 +853,8 @@
         for (let s=0; s<slotCount; s++){
           const arr = entries?.[day]?.[c]?.[s];
           if (Array.isArray(arr)){
-            out[day][c][s] = arr.filter(x => typeof x === "string").map(prettifyName).slice(0,3);
+            // ✅ NINCS slice(0,3) => nem vágjuk le
+            out[day][c][s] = arr.filter(x => typeof x === "string").map(prettifyName);
           }
         }
       }
@@ -866,7 +868,6 @@
       state.db.weeks[weekKey] = { weekStart: weekKey, slots: DEFAULT_SLOTS.slice(), entries: makeEmptyEntries(DEFAULT_SLOTS.length) };
       saveDB(state.db);
     } else {
-      // ha valamiért slots hossza változott, igazítsuk az entries-t
       const w = state.db.weeks[weekKey];
       const slots = w.slots || DEFAULT_SLOTS;
       w.entries = sanitizeEntries(w.entries, slots.length);
@@ -896,7 +897,8 @@
 
   function setCellNames(wk, dayIdx, coachIdx, slotIdx, names){
     const weekObj = ensureWeek(wk);
-    weekObj.entries[dayIdx][coachIdx][slotIdx] = (names || []).slice(0,3).map(prettifyName);
+    // ✅ NINCS slice(0,3) => nem vágjuk le
+    weekObj.entries[dayIdx][coachIdx][slotIdx] = (names || []).map(prettifyName);
     saveDB(state.db);
   }
 
@@ -943,13 +945,12 @@
 
   // ===== Public publish =====
   function buildPublicPayload(){
-    // csak biztonságos dolgok: config + hetek
     const clean = sanitizeDB(state.db);
     const weekKeys = Object.keys(clean.weeks || {}).sort();
     return {
       schema: "dak-public-v1",
       generatedAt: new Date().toISOString(),
-      config: { coaches: COACHES, days: DAYS.map(d=>d.name), maxPerCell: 3 },
+      config: { coaches: COACHES, days: DAYS.map(d=>d.name), maxPerCell: (Number.isFinite(MAX_PER_CELL) ? MAX_PER_CELL : null) },
       weekKeys,
       weeks: clean.weeks,
       nameBank: clean.nameBank

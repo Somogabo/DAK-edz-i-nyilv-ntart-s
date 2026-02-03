@@ -222,6 +222,8 @@
       color: var(--text); font-size:12px;
     }
     .pill:hover{border-color: rgba(124,92,255,.55); background: rgba(124,92,255,.10)}
+    .warnline{display:none;color: var(--warn);font-size:12px;margin-top:8px;}
+    .warnline.show{display:block}
 
     .results{
       margin-top:10px; border-top:1px solid rgba(255,255,255,.06);
@@ -288,6 +290,7 @@
         <div class="row" style="gap:8px">
           <a class="btn" id="openViewBtn" href="view.html" target="_blank" rel="noopener">Szülői nézet megnyitása</a>
           <button class="btn ok" id="publishBtn" title="Letölti a public.json fájlt, amit fel kell töltened a repóba">Publikus frissítés (public.json)</button>
+          <button class="btn" id="monthBtn" title="Havi összesítő (napok, órák, gyerekek)">Havi összesítő</button>
           <button class="btn" id="printBtn">Nyomtatás / PDF</button>
         </div>
         <div class="row" style="gap:8px">
@@ -308,7 +311,7 @@
         <div class="summaryTitle">Heti összesítő</div>
         <div class="summarySub" id="summarySub">—</div>
       </div>
-      <div class="summarySub">Max: <b>nincs korlát</b></div>
+      <div class="summarySub">Max: <b>3 gyerek / cella</b></div>
     </div>
     <div class="summaryGrid" id="summaryGrid"></div>
   </div>
@@ -316,7 +319,7 @@
   <div class="hint">
     <span>Tippek:</span>
     <span><kbd>Katt</kbd> a cellára → név hozzáadás/törlés</span>
-    <span>Max <b>nincs korlát</b> / cella</span>
+    <span>Max <b>3</b> gyerek / cella</span>
     <span>Ütközés jelzés: ugyanaz a név ugyanabban az idősávban több edzőnél</span>
   </div>
 
@@ -339,6 +342,7 @@
         <input class="input" id="nameInput" placeholder="Írj be egy nevet, majd Enter" />
         <button class="btn primary" id="addNameBtn">Hozzáad</button>
       </div>
+      <div class="warnline" id="limitWarn">Elérted a maximumot (3 gyerek / cella).</div>
 
       <div class="divider"></div>
 
@@ -358,6 +362,45 @@
       </div>
     </div>
   </div>
+
+</div>
+
+<!-- Havi összesítő modal -->
+<div class="backdrop" id="monthBackdrop" aria-hidden="true">
+  <div class="modal" style="width:min(860px, 100%)">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Havi összesítő</div>
+        <div class="muted" style="margin-top:2px">Kiválasztott hónap edzőnként: napok, órák, gyerek alkalmak, egyedi gyerekek</div>
+      </div>
+      <button class="iconbtn" id="monthCloseBtn" title="Bezárás">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="row" style="gap:10px; align-items:center; flex-wrap:wrap">
+        <label class="pill" style="display:flex; gap:8px; align-items:center">
+          <span class="muted">Hónap:</span>
+          <input id="monthPicker" type="month" style="background:transparent;border:0;color:var(--text);font:inherit;outline:none" />
+        </label>
+        <button class="btn" id="monthRefreshBtn">Frissítés</button>
+        <div class="muted" id="monthInfo"></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-title">Edzői bontás</div>
+        <div id="monthTableWrap" style="overflow:auto; margin-top:8px"></div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-title">Számítás</div>
+        <div class="muted" style="line-height:1.5">
+          • <b>Nap</b>: amikor az adott edzőnél legalább 1 idősávban van beírt gyerek.<br/>
+          • <b>Óra</b>: foglalt idősávok száma × 1 óra (egy idősáv egy óra).<br/>
+          • <b>Gyerek alkalom</b>: beírt nevek összesen (ha 2 gyerek van ugyanabban az órában, az +2).<br/>
+          • <b>Egyedi gyerek</b>: különböző nevek száma a hónapban.
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -371,12 +414,9 @@
     { name: "Csütörtök" },
     { name: "Péntek" }
   ];
-
-  // ✅ KORLÁT KIKAPCSOLVA:
-  // Ha később mégis szeretnél limitet, ide írj pl. 4-et, 5-öt, stb.
-  const MAX_PER_CELL = Infinity;
-
   const STORAGE_KEY = "dak_schedule_v2";
+  const MAX_PER_CELL = 99; // korlát kikapcsolva (régen 3)
+  const SLOT_DURATION_HOURS = 1; // 17:00/18:00 = 1 óra / idősáv
 
   let state = {
     currentWeekStart: mondayOf(new Date()),
@@ -404,12 +444,19 @@
 
   const openViewBtn = document.getElementById("openViewBtn");
   const publishBtn = document.getElementById("publishBtn");
+  const monthBtn = document.getElementById("monthBtn");
   const printBtn = document.getElementById("printBtn");
   const exportBtn = document.getElementById("exportBtn");
   const importFile = document.getElementById("importFile");
   const resetWeekBtn = document.getElementById("resetWeekBtn");
 
   const modalBackdrop = document.getElementById("modalBackdrop");
+  const monthBackdrop = document.getElementById("monthBackdrop");
+  const monthCloseBtn = document.getElementById("monthCloseBtn");
+  const monthPicker = document.getElementById("monthPicker");
+  const monthRefreshBtn = document.getElementById("monthRefreshBtn");
+  const monthInfo = document.getElementById("monthInfo");
+  const monthTableWrap = document.getElementById("monthTableWrap");
   const closeModalBtn = document.getElementById("closeModalBtn");
   const doneBtn = document.getElementById("doneBtn");
   const modalTitle = document.getElementById("modalTitle");
@@ -418,6 +465,7 @@
   const addNameBtn = document.getElementById("addNameBtn");
   const modalChips = document.getElementById("modalChips");
   const suggestions = document.getElementById("suggestions");
+  const limitWarn = document.getElementById("limitWarn");
   const clearCellBtn = document.getElementById("clearCellBtn");
   const conflictHint = document.getElementById("conflictHint");
 
@@ -447,10 +495,19 @@
   printBtn.addEventListener("click", () => window.print());
 
   publishBtn.addEventListener("click", () => {
+    // Publikus csomag: minden hét + config (szülők nézethez)
     const payload = buildPublicPayload();
     downloadJson("public.json", payload);
     alert("Letöltöttem a public.json fájlt ✅\n\nKövetkező lépés:\nGitHub → Upload files → töltsd fel a public.json-t a repó gyökerébe, és Commit.\n\nA szülők ezután a view.html linken a friss adatot látják.");
   });
+
+
+  monthBtn.addEventListener("click", () => {
+    openMonthModal();
+  });
+  monthCloseBtn.addEventListener("click", closeMonthModal);
+  monthBackdrop.addEventListener("click", (e) => { if (e.target === monthBackdrop) closeMonthModal(); });
+  monthRefreshBtn.addEventListener("click", () => renderMonthlySummary(monthPicker.value));
 
   exportBtn.addEventListener("click", () => {
     downloadJson(`dak_export_${todayISO()}.json`, state.db);
@@ -514,6 +571,7 @@
     const weekObj = ensureWeek(wk);
     const slots = weekObj.slots || DEFAULT_SLOTS;
 
+    // Szülői nézet nyitása: mindig ugyanaz a link, nincs adat URL-ben
     openViewBtn.href = `view.html`;
 
     renderSummary(weekObj, slots);
@@ -533,31 +591,27 @@
     const totalCellsPerCoach = DAYS.length * slots.length;
     summarySub.textContent = `Hét összes cellája edzőnként: ${totalCellsPerCoach} (napok: ${DAYS.length}, idősávok: ${slots.length})`;
     summaryGrid.innerHTML = "";
-
     for (let coachIdx=0; coachIdx<COACHES.length; coachIdx++){
       let kidCount = 0, filledCells = 0;
-
       for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
         for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
           const arr = weekObj.entries?.[dayIdx]?.[coachIdx]?.[slotIdx];
           if (Array.isArray(arr) && arr.length){ filledCells++; kidCount += arr.length; }
         }
       }
-
       const emptyCells = totalCellsPerCoach - filledCells;
-
-      // ✅ korlát nélkül nincs "max gyerek"; inkább cella-kihasználtságot számolunk
-      const loadPct = totalCellsPerCoach ? Math.round((filledCells / totalCellsPerCoach) * 100) : 0;
+      const maxKids = totalCellsPerCoach * 3;
+      const loadPct = maxKids ? Math.round((kidCount / maxKids) * 100) : 0;
 
       const card = document.createElement("div");
       card.className = "sumCard";
       card.innerHTML = `
         <div class="sumName">
           <span>${COACHES[coachIdx]}</span>
-          <span class="sumTag">${filledCells}/${totalCellsPerCoach} cella • ${loadPct}%</span>
+          <span class="sumTag">${kidCount}/${maxKids} hely • ${loadPct}%</span>
         </div>
         <div class="sumMetrics">
-          <div class="metric"><div class="k">Gyerekek összesen</div><div class="v">${kidCount}</div><div class="s">—</div></div>
+          <div class="metric"><div class="k">Gyerekek összesen</div><div class="v">${kidCount}</div><div class="s">max: ${maxKids}</div></div>
           <div class="metric"><div class="k">Foglalt cellák</div><div class="v">${filledCells}</div><div class="s">max: ${totalCellsPerCoach}</div></div>
           <div class="metric"><div class="k">Üres cellák</div><div class="v">${emptyCells}</div><div class="s">max: ${totalCellsPerCoach}</div></div>
         </div>
@@ -650,7 +704,7 @@
 
           const footer = document.createElement("div");
           footer.className = "cellFooter";
-          footer.innerHTML = `<span>${names.length} fő</span>`;
+          footer.innerHTML = `<span>${names.length}/3</span>`;
           const plus = document.createElement("span");
           plus.className = "plus";
           plus.textContent = "+";
@@ -716,7 +770,7 @@
     dayDate.setDate(dayDate.getDate() + sel.dayIdx);
 
     modalTitle.textContent = `${COACHES[sel.coachIdx]} — ${slots[sel.slotIdx]}`;
-    modalMeta.textContent = `${DAYS[sel.dayIdx].name}, ${fmtDate(dayDate)} • Nincs korlát`;
+    modalMeta.textContent = `${DAYS[sel.dayIdx].name}, ${fmtDate(dayDate)} • Max 3 gyerek`;
 
     const names = getCellNames(weekObj, sel.dayIdx, sel.coachIdx, sel.slotIdx);
     renderModalChips(names);
@@ -728,6 +782,7 @@
       ? `Ütközés: ${conflictNames.join(", ")} ugyanebben az idősávban más edzőnél is szerepel.`
       : "Nincs ütközés ebben a cellában.";
 
+    limitWarn.classList.toggle("show", names.length >= MAX_PER_CELL);
     nameInput.value = "";
     modalBackdrop.classList.add("show");
     modalBackdrop.setAttribute("aria-hidden", "false");
@@ -740,6 +795,111 @@
     state.sel = null;
     render();
   }
+
+
+  // ===== Havi összesítő =====
+  function openMonthModal(){
+    const d = new Date();
+    const ym = d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+    monthPicker.value = monthPicker.value || ym;
+    renderMonthlySummary(monthPicker.value);
+    monthBackdrop.classList.add("show");
+    monthBackdrop.setAttribute("aria-hidden","false");
+  }
+  function closeMonthModal(){
+    monthBackdrop.classList.remove("show");
+    monthBackdrop.setAttribute("aria-hidden","true");
+  }
+
+  function renderMonthlySummary(monthValue){
+    // monthValue: "YYYY-MM"
+    if (!monthValue || !/^\d{4}-\d{2}$/.test(monthValue)){
+      monthInfo.textContent = "Válassz egy hónapot.";
+      monthTableWrap.innerHTML = "";
+      return;
+    }
+    const [Y, M] = monthValue.split("-").map(Number);
+    const monthIdx = M - 1;
+    const first = new Date(Date.UTC(Y, monthIdx, 1));
+    const next = new Date(Date.UTC(Y, monthIdx+1, 1));
+
+    // stats init
+    const stats = COACHES.map(() => ({
+      days: new Set(),
+      hours: 0,
+      kidSessions: 0,
+      uniqueKids: new Set(),
+      filledCells: 0
+    }));
+
+    const weeks = state.db.weeks || {};
+    for (const wk of Object.keys(weeks)){
+      const w = weeks[wk];
+      const wkDate = new Date(wk + "T00:00:00Z");
+      if (isNaN(wkDate.getTime())) continue;
+
+      const slots = Array.isArray(w?.slots) ? w.slots : DEFAULT_SLOTS;
+      const entries = w?.entries;
+      for (let day=0; day<DAYS.length; day++){
+        const dayDate = new Date(wkDate.getTime());
+        dayDate.setUTCDate(dayDate.getUTCDate() + day);
+        if (dayDate < first || dayDate >= next) continue;
+
+        const dayKey = dayDate.toISOString().slice(0,10);
+        for (let c=0; c<COACHES.length; c++){
+          let hasAny = false;
+          for (let s=0; s<slots.length; s++){
+            const names = entries?.[day]?.[c]?.[s];
+            if (Array.isArray(names) && names.length){
+              hasAny = true;
+              stats[c].filledCells += 1;
+              stats[c].hours += SLOT_DURATION_HOURS;
+              stats[c].kidSessions += names.length;
+              for (const nm of names) stats[c].uniqueKids.add(prettifyName(nm));
+            }
+          }
+          if (hasAny) stats[c].days.add(dayKey);
+        }
+      }
+    }
+
+    const totalHours = stats.reduce((a,x)=>a+x.hours,0);
+    const totalKidSessions = stats.reduce((a,x)=>a+x.kidSessions,0);
+    const totalDays = stats.reduce((a,x)=>a+x.days.size,0);
+    monthInfo.textContent = `Összesen: ${totalDays} edző-nap • ${totalHours} óra • ${totalKidSessions} gyerek alkalom`;
+
+    const rows = stats.map((st, i) => {
+      return `
+        <tr>
+          <td style="white-space:nowrap"><b>${escapeHtml(COACHES[i])}</b></td>
+          <td style="text-align:right">${st.days.size}</td>
+          <td style="text-align:right">${st.hours}</td>
+          <td style="text-align:right">${st.filledCells}</td>
+          <td style="text-align:right">${st.kidSessions}</td>
+          <td style="text-align:right">${st.uniqueKids.size}</td>
+        </tr>
+      `;
+    }).join("");
+
+    monthTableWrap.innerHTML = `
+      <table class="mini" style="width:100%; border-collapse:separate; border-spacing:0 8px">
+        <thead>
+          <tr class="muted" style="font-size:12px">
+            <th style="text-align:left; padding:6px 10px">Edző</th>
+            <th style="text-align:right; padding:6px 10px">Nap</th>
+            <th style="text-align:right; padding:6px 10px">Óra</th>
+            <th style="text-align:right; padding:6px 10px">Foglalt cella</th>
+            <th style="text-align:right; padding:6px 10px">Gyerek alkalom</th>
+            <th style="text-align:right; padding:6px 10px">Egyedi gyerek</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows || ""}
+        </tbody>
+      </table>
+    `;
+  }
+
 
   function renderModalChips(names){
     modalChips.innerHTML = "";
@@ -801,9 +961,10 @@
     const weekObj = ensureWeek(wk);
     const names = getCellNames(weekObj, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx);
 
+    if (names.length >= MAX_PER_CELL){ limitWarn.classList.add("show"); return; }
     if (names.some(n => normName(n) === normName(raw))){ nameInput.value = ""; return; }
 
-    const next = [...names, prettifyName(raw)];
+    const next = [...names, prettifyName(raw)].slice(0,MAX_PER_CELL);
     setCellNames(wk, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx, next);
     upsertNameBank(prettifyName(raw));
 
@@ -853,8 +1014,7 @@
         for (let s=0; s<slotCount; s++){
           const arr = entries?.[day]?.[c]?.[s];
           if (Array.isArray(arr)){
-            // ✅ NINCS slice(0,3) => nem vágjuk le
-            out[day][c][s] = arr.filter(x => typeof x === "string").map(prettifyName);
+            out[day][c][s] = arr.filter(x => typeof x === "string").map(prettifyName).slice(0,MAX_PER_CELL);
           }
         }
       }
@@ -868,6 +1028,7 @@
       state.db.weeks[weekKey] = { weekStart: weekKey, slots: DEFAULT_SLOTS.slice(), entries: makeEmptyEntries(DEFAULT_SLOTS.length) };
       saveDB(state.db);
     } else {
+      // ha valamiért slots hossza változott, igazítsuk az entries-t
       const w = state.db.weeks[weekKey];
       const slots = w.slots || DEFAULT_SLOTS;
       w.entries = sanitizeEntries(w.entries, slots.length);
@@ -897,8 +1058,7 @@
 
   function setCellNames(wk, dayIdx, coachIdx, slotIdx, names){
     const weekObj = ensureWeek(wk);
-    // ✅ NINCS slice(0,3) => nem vágjuk le
-    weekObj.entries[dayIdx][coachIdx][slotIdx] = (names || []).map(prettifyName);
+    weekObj.entries[dayIdx][coachIdx][slotIdx] = (names || []).slice(0,MAX_PER_CELL).map(prettifyName);
     saveDB(state.db);
   }
 
@@ -945,12 +1105,13 @@
 
   // ===== Public publish =====
   function buildPublicPayload(){
+    // csak biztonságos dolgok: config + hetek
     const clean = sanitizeDB(state.db);
     const weekKeys = Object.keys(clean.weeks || {}).sort();
     return {
       schema: "dak-public-v1",
       generatedAt: new Date().toISOString(),
-      config: { coaches: COACHES, days: DAYS.map(d=>d.name), maxPerCell: (Number.isFinite(MAX_PER_CELL) ? MAX_PER_CELL : null) },
+      config: { coaches: COACHES, days: DAYS.map(d=>d.name), maxPerCell: MAX_PER_CELL },
       weekKeys,
       weeks: clean.weeks,
       nameBank: clean.nameBank
@@ -1013,3 +1174,4 @@
 </script>
 </body>
 </html>
+

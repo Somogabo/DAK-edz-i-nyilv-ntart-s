@@ -60,6 +60,11 @@
     }
     .brand h1{margin:0;font-size:16px}
     .brand .sub{color:var(--muted);font-size:12px;margin-top:2px}
+    .controls{
+      flex:1;
+      display:flex; gap:10px; align-items:stretch; justify-content:flex-end;
+      flex-wrap:wrap;
+    }
     .panel{
       background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
       border:1px solid rgba(255,255,255,.06);
@@ -67,7 +72,6 @@
       box-shadow: var(--shadow);
       padding:12px;
       min-width: 320px;
-      flex:1;
     }
     .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
     .row + .row{margin-top:10px}
@@ -78,18 +82,18 @@
       padding:9px 12px;border-radius:14px;
       cursor:pointer;
       display:inline-flex; gap:8px; align-items:center;
-      transition: transform .05s ease, border-color .15s ease, opacity .15s ease;
+      transition: transform .05s ease, border-color .15s ease;
       user-select:none;
-      white-space:nowrap;
     }
     .btn:hover{border-color: rgba(124,92,255,.45)}
     .btn:active{transform: translateY(1px)}
-    .btn:disabled{opacity:.55; cursor:not-allowed}
     .btn.primary{
       border-color: rgba(124,92,255,.55);
       background: linear-gradient(180deg, rgba(124,92,255,.30), rgba(124,92,255,.12));
     }
-    .btn.ghost{background: transparent}
+    .btn.ghost{
+      background: transparent;
+    }
     .btn.danger{
       border-color: rgba(255,92,122,.45);
       background: linear-gradient(180deg, rgba(255,92,122,.22), rgba(255,92,122,.08));
@@ -171,10 +175,19 @@
       font-size:13px;
     }
     .dateText{color:var(--muted); font-size:12px}
-    td{background: rgba(15,23,48,.40)}
-    td.cell{min-height:74px; cursor:pointer}
-    td.cell:hover{background: rgba(124,92,255,.08)}
-    td.cell.conflict{box-shadow: inset 0 0 0 2px rgba(255,204,102,.35)}
+    td{
+      background: rgba(15,23,48,.40);
+    }
+    td.cell{
+      min-height:74px;
+      cursor:pointer;
+    }
+    td.cell:hover{
+      background: rgba(124,92,255,.08);
+    }
+    td.cell.conflict{
+      box-shadow: inset 0 0 0 2px rgba(255,204,102,.35);
+    }
     .chips{display:flex; flex-wrap:wrap; gap:6px}
     .chip{
       background: rgba(27,39,80,.75);
@@ -229,7 +242,7 @@
       color: var(--text);
     }
 
-    /* Modal */
+    /* Drawer / Modal */
     .backdrop{
       position:fixed; inset:0;
       background: rgba(0,0,0,.55);
@@ -312,13 +325,28 @@
       color: var(--text);
     }
 
+    /* Print */
     @media print{
       body{background:#fff;color:#000}
       .topbar, .hint, .modal, .backdrop{display:none !important}
-      .tableWrap{box-shadow:none; border:none; border-radius:0}
-      thead th{position:static;background:#fff;color:#000}
-      th, td{border:1px solid #ddd !important;background:#fff !important;color:#000 !important}
-      .chip{background:#f3f3f3 !important;color:#000 !important;border:1px solid #ddd !important}
+      .tableWrap{
+        box-shadow:none; border:none; border-radius:0;
+      }
+      thead th{
+        position:static;
+        background:#fff;
+        color:#000;
+      }
+      th, td{
+        border:1px solid #ddd !important;
+        background:#fff !important;
+        color:#000 !important;
+      }
+      .chip{
+        background:#f3f3f3 !important;
+        color:#000 !important;
+        border:1px solid #ddd !important;
+      }
       .plus, .cellFooter{display:none !important}
     }
   </style>
@@ -334,7 +362,7 @@
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel" style="flex:1">
       <div class="row" style="justify-content:space-between">
         <div class="weekbox">
           <span class="badge" id="weekLabel">Hét</span>
@@ -346,7 +374,6 @@
         <div class="row">
           <button class="btn" id="prevWeekBtn" title="Előző hét">← Előző</button>
           <button class="btn" id="todayWeekBtn" title="Ugrás az aktuális hétre">Ma</button>
-          <button class="btn primary" id="copyPrevWeekBtn" title="Az előző hét teljes beosztását átmásolja erre a hétre">Másolás előző hétről</button>
           <button class="btn" id="nextWeekBtn" title="Következő hét">Következő →</button>
         </div>
       </div>
@@ -385,6 +412,7 @@
   </div>
 </div>
 
+<!-- Modal -->
 <div class="backdrop" id="modalBackdrop" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="modalHeader">
@@ -423,7 +451,7 @@
 
 <script>
 (() => {
-  // FIX beállítások
+  // ====== FIX BEÁLLÍTÁSOK ======
   const COACHES = ["Bálint Zsolt", "Bakos Péter", "Somogyi Gábor"];
   const DEFAULT_SLOTS = ["17:00", "18:00"];
   const DAYS = [
@@ -433,34 +461,42 @@
     { key: "thu", name: "Csütörtök" },
     { key: "fri", name: "Péntek" }
   ];
+
   const STORAGE_KEY = "dak_schedule_v1";
 
-  // Állapot
+  // ====== ÁLLAPOT ======
   let state = {
     viewOnly: false,
+    // editor mode:
     currentWeekStart: mondayOf(new Date()),
     db: loadDB(),
+    // selected cell for modal:
     sel: null,
+    // search:
     search: ""
   };
 
-  // URL view mode (read-only link)
+  // ====== URL VIEW MODE (read-only link) ======
   const urlInfo = parseHash();
   if (urlInfo.viewOnly && urlInfo.data) {
     try {
       state.viewOnly = true;
       const shared = decodeSharedData(urlInfo.data);
+      // shared is a week object (single week)
       state.currentWeekStart = new Date(shared.weekStart + "T00:00:00");
+      // build a db with only this week
       state.db = { weeks: { [shared.weekStart]: shared }, nameBank: shared.nameBank || [] };
       document.getElementById("modeLine").textContent = "Néző mód (read-only) — szerkesztés letiltva";
+      // disable editor-specific buttons
       disableEditorUI();
     } catch (e) {
       alert("Hiba a megosztott link betöltésekor. Lehet, hogy sérült a link.");
+      // fallback editor mode
       state.viewOnly = false;
     }
   }
 
-  // DOM
+  // ====== DOM ======
   const elTable = document.getElementById("scheduleTable");
   const weekRangeText = document.getElementById("weekRangeText");
   const weekStartText = document.getElementById("weekStartText");
@@ -469,7 +505,6 @@
   const prevWeekBtn = document.getElementById("prevWeekBtn");
   const nextWeekBtn = document.getElementById("nextWeekBtn");
   const todayWeekBtn = document.getElementById("todayWeekBtn");
-  const copyPrevWeekBtn = document.getElementById("copyPrevWeekBtn");
 
   const searchInput = document.getElementById("searchInput");
   const clearSearchBtn = document.getElementById("clearSearchBtn");
@@ -495,43 +530,10 @@
   const clearCellBtn = document.getElementById("clearCellBtn");
   const conflictHint = document.getElementById("conflictHint");
 
-  // Events
+  // ====== EVENTS ======
   prevWeekBtn.addEventListener("click", () => { if (!state.viewOnly) shiftWeek(-7); else shiftWeekReadOnly(-7); });
   nextWeekBtn.addEventListener("click", () => { if (!state.viewOnly) shiftWeek( 7); else shiftWeekReadOnly( 7); });
   todayWeekBtn.addEventListener("click", () => { if (!state.viewOnly) setWeek(mondayOf(new Date())); else setWeekReadOnly(mondayOf(new Date())); });
-
-  // 1-es funkció: előző hét másolása
-  copyPrevWeekBtn.addEventListener("click", () => {
-    if (state.viewOnly) return;
-
-    const currentWk = getWeekKey(state.currentWeekStart);
-
-    const prevDate = new Date(state.currentWeekStart);
-    prevDate.setDate(prevDate.getDate() - 7);
-    const prevWk = getWeekKey(mondayOf(prevDate));
-
-    const prevWeek = state.db.weeks?.[prevWk];
-    if (!prevWeek) {
-      alert("Az előző hét még üres / nincs adat, ezért nincs mit másolni.");
-      return;
-    }
-
-    const currentWeek = ensureWeek(currentWk);
-
-    const currentHasAny = weekHasAnyData(currentWeek);
-    if (currentHasAny) {
-      const ok = confirm("A jelenlegi héten már van adat. Biztosan felülírod az egészet az előző hét alapján?");
-      if (!ok) return;
-    }
-
-    // Deep copy entries + slots
-    currentWeek.slots = Array.isArray(prevWeek.slots) ? prevWeek.slots.slice() : DEFAULT_SLOTS.slice();
-    currentWeek.entries = deepClone(prevWeek.entries);
-
-    saveDB(state.db);
-    render();
-    alert("Kész ✅ Az előző hét beosztása átmásolva erre a hétre.");
-  });
 
   searchInput.addEventListener("input", () => {
     state.search = (searchInput.value || "").trim();
@@ -552,6 +554,7 @@
       weekStart: wk,
       slots: weekObj.slots,
       entries: weekObj.entries,
+      // include nameBank to keep suggestions nicer in viewer (optional)
       nameBank: state.db.nameBank || []
     };
     const encoded = encodeSharedData(sharedObj);
@@ -629,10 +632,11 @@
     render();
   });
 
-  // Render
+  // ====== RENDER ======
   render();
 
   function render(){
+    // week labels
     const wk = getWeekKey(state.currentWeekStart);
     const monday = new Date(wk + "T00:00:00");
     const friday = new Date(monday); friday.setDate(friday.getDate() + 4);
@@ -644,15 +648,24 @@
     const weekObj = ensureWeek(wk);
     const slots = weekObj.slots || DEFAULT_SLOTS;
 
+    // compute conflicts for this week
     const conflicts = computeConflicts(weekObj, slots);
 
+    // build table
     const thead = buildThead(slots);
     const tbody = buildTbody(weekObj, slots, conflicts);
     elTable.innerHTML = "";
     elTable.appendChild(thead);
     elTable.appendChild(tbody);
 
+    // search
     renderSearch(weekObj, slots);
+
+    // disable navigation in viewer? allow, but only within same shared db
+    if (state.viewOnly){
+      // In viewer mode, prev/next will work only if the shared DB has those weeks (it doesn't),
+      // so we just show alert if not available.
+    }
   }
 
   function buildThead(slots){
@@ -718,9 +731,12 @@
           const hasConflict = names.some(n => conflicts?.[dayIdx]?.[slotIdx]?.[normName(n)] === true);
           if (hasConflict) td.classList.add("conflict");
 
+          // highlight if search matches
           const q = normName(state.search);
           const matchSearch = q && names.some(n => normName(n).includes(q));
-          if (matchSearch) td.style.boxShadow = "inset 0 0 0 2px rgba(24,214,161,.35)";
+          if (matchSearch) {
+            td.style.boxShadow = "inset 0 0 0 2px rgba(24,214,161,.35)";
+          }
 
           const chips = document.createElement("div");
           chips.className = "chips";
@@ -819,7 +835,7 @@
     searchResults.innerHTML = html;
   }
 
-  // Modal
+  // ====== MODAL ======
   function openModal(sel){
     state.sel = sel;
     const weekObj = ensureWeek(sel.wk);
@@ -833,14 +849,18 @@
 
     const names = getCellNames(weekObj, sel.dayIdx, sel.coachIdx, sel.slotIdx);
     renderModalChips(names);
+
+    // suggestions from nameBank
     renderSuggestions(sel, names);
 
+    // conflict hint
     const conflicts = computeConflicts(weekObj, slots);
     const conflictNames = names.filter(n => conflicts?.[sel.dayIdx]?.[sel.slotIdx]?.[normName(n)] === true);
     conflictHint.textContent = conflictNames.length
       ? `Ütközés: ${conflictNames.join(", ")} ugyanebben az idősávban más edzőnél is szerepel.`
       : "Nincs ütközés ebben a cellában.";
 
+    // limit warning
     limitWarn.classList.toggle("show", names.length >= 3);
 
     nameInput.value = "";
@@ -874,6 +894,7 @@
       x.addEventListener("click", () => {
         if (!state.sel) return;
         removeName(state.sel.wk, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx, n);
+        // refresh modal view
         openModal(state.sel);
       });
       chip.appendChild(x);
@@ -883,7 +904,11 @@
   }
 
   function renderSuggestions(sel, currentNames){
-    const bank = (state.db.nameBank || []).slice().reverse();
+    const bank = (state.db.nameBank || []).slice();
+    // show recent first: reverse
+    bank.reverse();
+
+    // filter out already in cell
     const existing = new Set(currentNames.map(normName));
     const q = normName(nameInput.value || "");
     const filtered = bank
@@ -931,6 +956,7 @@
       return;
     }
 
+    // avoid duplicates in same cell (case-insensitive)
     if (names.some(n => normName(n) === normName(raw))){
       nameInput.value = "";
       return;
@@ -938,13 +964,16 @@
 
     const next = [...names, prettifyName(raw)].slice(0,3);
     setCellNames(wk, state.sel.dayIdx, state.sel.coachIdx, state.sel.slotIdx, next);
+
+    // update nameBank
     upsertNameBank(prettifyName(raw));
 
+    // refresh modal
     openModal(state.sel);
     render();
   }
 
-  // Data
+  // ====== DATA HELPERS ======
   function loadDB(){
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { weeks: {}, nameBank: [] };
@@ -977,6 +1006,7 @@
   }
 
   function makeEmptyEntries(){
+    // [dayIdx][coachIdx][slotIdx] -> array of names
     const d = [];
     for (let day=0; day<DAYS.length; day++){
       const cArr = [];
@@ -993,6 +1023,7 @@
   }
 
   function sanitizeEntries(entries){
+    // ensure shape
     const out = makeEmptyEntries();
     for (let day=0; day<DAYS.length; day++){
       for (let c=0; c<COACHES.length; c++){
@@ -1023,23 +1054,10 @@
     return state.db.weeks[weekKey];
   }
 
-  function weekHasAnyData(weekObj){
-    const e = weekObj?.entries;
-    if (!Array.isArray(e)) return false;
-    for (let d=0; d<e.length; d++){
-      for (let c=0; c<(e[d]||[]).length; c++){
-        for (let s=0; s<((e[d][c]||[]).length); s++){
-          const arr = e[d][c][s];
-          if (Array.isArray(arr) && arr.length) return true;
-        }
-      }
-    }
-    return false;
-  }
-
   function getCellNames(weekObj, dayIdx, coachIdx, slotIdx){
     const arr = weekObj.entries?.[dayIdx]?.[coachIdx]?.[slotIdx];
     return Array.isArray(arr) ? arr : [];
+    // note: slots count fixed to DEFAULT_SLOTS length in MVP
   }
 
   function setCellNames(wk, dayIdx, coachIdx, slotIdx, names){
@@ -1065,15 +1083,21 @@
     const n = prettifyName(name);
     const bank = state.db.nameBank || [];
     const idx = bank.findIndex(x => normName(x) === normName(n));
-    if (idx >= 0) bank.splice(idx,1);
+    if (idx >= 0){
+      // move to end (most recent)
+      bank.splice(idx,1);
+    }
     bank.push(n);
+    // keep at most 200
     state.db.nameBank = bank.slice(-200);
     saveDB(state.db);
   }
 
-  // Conflicts
+  // ====== CONFLICTS ======
   function computeConflicts(weekObj, slots){
+    // conflicts[dayIdx][slotIdx][normName]=true if appears in >1 coach in same day+slot
     const conf = Array.from({length:DAYS.length}, () => Array.from({length:slots.length}, () => ({})));
+
     for (let dayIdx=0; dayIdx<DAYS.length; dayIdx++){
       for (let slotIdx=0; slotIdx<slots.length; slotIdx++){
         const counts = new Map();
@@ -1092,7 +1116,7 @@
     return conf;
   }
 
-  // Week nav
+  // ====== WEEK NAV ======
   function setWeek(date){
     state.currentWeekStart = mondayOf(date);
     render();
@@ -1102,6 +1126,8 @@
     d.setDate(d.getDate() + days);
     setWeek(d);
   }
+
+  // read-only navigation: only works if week exists in db (shared viewer usually has one week)
   function setWeekReadOnly(date){
     const wk = getWeekKey(mondayOf(date));
     if (!state.db.weeks[wk]){
@@ -1117,9 +1143,10 @@
     setWeekReadOnly(d);
   }
 
-  // Share encode/decode
+  // ====== SHARE ENCODE/DECODE ======
   function encodeSharedData(obj){
     const json = JSON.stringify(obj);
+    // base64url
     const b64 = btoa(unescape(encodeURIComponent(json)))
       .replaceAll("+","-").replaceAll("/","_").replaceAll("=","");
     return encodeURIComponent(b64);
@@ -1132,6 +1159,7 @@
   }
   function parseHash(){
     const h = (location.hash || "").replace(/^#/, "");
+    // support "#view=1&data=..." or "#data=..."
     const params = new URLSearchParams(h.replace(/^view\b/, "view=1"));
     const viewOnly = params.get("view") === "1";
     const data = params.get("data");
@@ -1139,16 +1167,25 @@
   }
 
   function disableEditorUI(){
+    // hide buttons not relevant
+    prevWeekBtn.disabled = false;
+    nextWeekBtn.disabled = false;
+    todayWeekBtn.disabled = false;
+
     exportBtn.disabled = true;
     resetWeekBtn.disabled = true;
-    copyPrevWeekBtn.disabled = true;
     document.querySelector("label[for='importFile']").style.opacity = .5;
     document.querySelector("label[for='importFile']").style.pointerEvents = "none";
+
+    // prevent opening modal by leaving render logic
+    // also soften share button text
     shareLinkBtn.textContent = "Megosztott nézet";
     shareLinkBtn.disabled = true;
+
+    // search still works
   }
 
-  // Utils
+  // ====== UTILS ======
   function mondayOf(date){
     const d = new Date(date);
     d.setHours(0,0,0,0);
@@ -1157,6 +1194,7 @@
     return d;
   }
   function getWeekKey(date){
+    // yyyy-mm-dd of monday
     const d = new Date(date);
     d.setHours(0,0,0,0);
     const y = d.getFullYear();
@@ -1165,6 +1203,7 @@
     return `${y}-${m}-${dd}`;
   }
   function fmtDate(date){
+    // Hungarian dd.mm.yyyy
     const d = new Date(date);
     const y = d.getFullYear();
     const m = String(d.getMonth()+1).padStart(2,"0");
@@ -1182,6 +1221,7 @@
     return (s||"").toString().trim().toLowerCase();
   }
   function prettifyName(s){
+    // keep as typed but trim extra spaces
     return (s||"").toString().trim().replace(/\s+/g, " ");
   }
   function escapeHtml(s){
@@ -1190,10 +1230,6 @@
       .replaceAll("<","&lt;")
       .replaceAll(">","&gt;")
       .replaceAll('"',"&quot;");
-  }
-  function deepClone(x){
-    try { return JSON.parse(JSON.stringify(x)); }
-    catch { return x; }
   }
 })();
 </script>
